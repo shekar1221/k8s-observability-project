@@ -1,0 +1,33 @@
+$ kubectl describe pod/orders-api-54b78d849f-dwrbf  -n observability-demo  |tail
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                    From               Message
+  ----     ------     ----                   ----               -------
+  Normal   Scheduled  41m                    default-scheduler  Successfully assigned observability-demo/orders-api-54b78d849f-dwrbf to observability-control-plane
+  Normal   Pulling    37m (x5 over 41m)      kubelet            spec.containers{orders-api}: Pulling image "orders-api:missing-lab-image"
+  Warning  Failed     37m (x5 over 41m)      kubelet            spec.containers{orders-api}: Failed to pull image "orders-api:missing-lab-image": failed to pull and unpack image "docker.io/library/orders-api:missing-lab-image": failed to resolve reference "docker.io/library/orders-api:missing-lab-image": pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+  Warning  Failed     37m (x5 over 41m)      kubelet            spec.containers{orders-api}: Error: ErrImagePull
+  Normal   BackOff    5m56s (x151 over 41m)  kubelet            spec.containers{orders-api}: Back-off pulling image "orders-api:missing-lab-image"
+  Warning  Failed     5m56s (x151 over 41m)  kubelet            spec.containers{orders-api}: Error: ImagePullBackOff
+
+shekk@Shekkar MINGW64 ~
+
+$ kubectl describe pod/orders-api-54b78d849f-dwrbf  -n observability-demo   |egrep -w "Ready|Status|Reason" -B 1
+Annotations:      <none>
+Status:           Pending
+--
+    State:          Waiting
+      Reason:       ImagePullBackOff
+    Ready:          False
+--
+Conditions:
+  Type                        Status
+--
+  Initialized                 True
+  Ready                       False
+--
+Events:
+  Type     Reason     Age                  From               Message
+
+shekk@Shekkar MINGW64 ~
+$

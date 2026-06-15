@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: observability-lab-08
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: REPLACE_WITH_YOUR_GIT_REPO_URL
+    targetRevision: main
+    path: troubleshooting-labs/08-loki-logs-missing
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: observability-demo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

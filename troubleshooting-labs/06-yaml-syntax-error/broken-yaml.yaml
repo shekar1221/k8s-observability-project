@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name broken-yaml-demo
+  namespace: observability-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: broken-yaml-demo
+  template:
+    metadata:
+      labels:
+        app: broken-yaml-demo
+    spec:
+      containers:
+        - name: broken-yaml-demo
+          image: nginx:latest

@@ -1,0 +1,136 @@
+$ kubectl get deployment orders-api  -n observability-demo -o wide
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS   IMAGES                         SELECTOR
+orders-api   0/2     2            0           51m   orders-api   orders-api:missing-lab-image   app=orders-api
+
+shekk@Shekkar MINGW64 ~
+$ kubectl describe deployment orders-api  -n observability-demo   |grep -w image
+    Image:      orders-api:missing-lab-image
+
+shekk@Shekkar MINGW64 ~
+$
+ ***** FIX ****
+ ----------------
+$ kubectl set image deployment/orders-api  orders-api=orders-api:local -n observability-demo
+deployment.apps/orders-api image updated
+$ kubectl describe deployment orders-api  -n observability-demo   |grep -i image
+    Image:      orders-api:local
+
+$ kubectl get rs -n observability-demo -o wide| grep orders-api
+orders-api-54b78d849f       2         2         0       67m   orders-api       orders-api:missing-lab-image                           app=orders-api,pod-template-hash=54b78d849f
+orders-api-856fd7d5b        1         1         0       11m   orders-api       orders-api:local                                       app=orders-api,pod-template-hash=856fd7d5b
+
+shekk@Shekkar MINGW64 ~
+$ kubectl get pods -A  -o wide|grep -i orders-api
+observability-demo   orders-api-54b78d849f-d9dzz                           0/1     ImagePullBackOff   0             68m     10.244.0.25   observability-control-plane   <none>           <none>
+observability-demo   orders-api-54b78d849f-dwrbf                           0/1     ImagePullBackOff   0             68m     10.244.0.24   observability-control-plane   <none>           <none>
+observability-demo   orders-api-856fd7d5b-ttzm7                            0/1     ImagePullBackOff   0             2m26s   10.244.0.29   observability-control-plane   <none>           <none>
+
+shekk@Shekkar MINGW64 ~
+$
+
+*** issue not fixed still ****
+
+S D:\k8s-observability-project-codex\app> cd D:\k8s-observability-project-codex\app
+PS D:\k8s-observability-project-codex\app> docker build -t orders-api:local .
+[+] Building 3.2s (12/12) FINISHED                              docker:desktop-linux
+ => [internal] load build definition from Dockerfile                            0.0s
+ => => transferring dockerfile: 265B                                            0.0s
+ => [internal] load metadata for docker.io/library/python:3.12-slim             2.3s
+ => [auth] library/python:pull token for registry-1.docker.io                   0.0s
+ => [internal] load .dockerignore                                               0.0s
+ => => transferring context: 2B                                                 0.0s
+ => [1/6] FROM docker.io/library/python:3.12-slim@sha256:d764629ce0ddd8c71fd37  0.1s
+ => => resolve docker.io/library/python:3.12-slim@sha256:d764629ce0ddd8c71fd37  0.1s
+ => [internal] load build context                                               0.1s
+ => => transferring context: 64B                                                0.0s
+ => CACHED [2/6] WORKDIR /app                                                   0.0s
+ => CACHED [3/6] COPY requirements.txt .                                        0.0s
+ => CACHED [4/6] RUN pip install --no-cache-dir --upgrade pip setuptools wheel  0.0s
+ => CACHED [5/6] RUN pip install --no-cache-dir -r requirements.txt             0.0s
+ => CACHED [6/6] COPY app.py .                                                  0.0s
+ => exporting to image                                                          0.3s
+ => => exporting layers                                                         0.0s
+ => => exporting manifest sha256:ba591abbd11446c699070b3e0671927dfe974e75612ba  0.0s
+ => => exporting config sha256:b5a1667cb8d511548a7510926445d31ca003038d9b037a9  0.0s
+ => => exporting attestation manifest sha256:5a2bdc630826e14c160109e9f9ae492b0  0.1s
+ => => exporting manifest list sha256:02376167c8ccc03d58602f99d6e91d4cba0a7336  0.0s
+ => => naming to docker.io/library/orders-api:local                             0.0s
+ => => unpacking to docker.io/library/orders-api:local                          0.0s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/m0z207x0cg8r0qngww6fql6x2
+PS D:\k8s-observability-project-codex\app> kind load docker-image orders-api:local --name observability
+Image: "orders-api:local" with ID "sha256:02376167c8ccc03d58602f99d6e91d4cba0a73363b0b16f1d3afd41ca338d16c" not yet present on node "observability-control-plane", loading...
+
+$ kubectl patch deployment orders-api -n observability-demo -p '{"spec":{"template":{"spec":{"containers":[{"name":"orders-api","image":"orders-api:local","imagePullPolicy":"Never"}]}}}}'
+deployment.apps/orders-api patched
+
+
+shekk@Shekkar MINGW64 ~
+NAME                              READY   STATUS        RESTARTS   AGE
+elasticsearch-775f5c9dbd-xtdsq    1/1     Running       0          76m
+fluent-bit-qjkpr                  1/1     Running       0          76m
+jaeger-78f74898bb-7wzj8           1/1     Running       0          76m
+kibana-6d7d74b7c7-h9xtr           1/1     Running       0          76m
+orders-api-69568755b-2fj4w        1/1     Running       0          35s
+orders-api-69568755b-z5ft2        1/1     Running       0          29s
+orders-api-776d585b77-c8q7z       1/1     Terminating   0          96s
+orders-api-776d585b77-gf2g8       1/1     Terminating   0          89s
+otel-collector-76886d8d4d-7jtrt   1/1     Running       0          76m
+orders-api-776d585b77-c8q7z       0/1     Error         0          97s
+orders-api-776d585b77-c8q7z       0/1     Error         0          98s
+orders-api-776d585b77-c8q7z       0/1     Error         0          98s
+orders-api-776d585b77-gf2g8       0/1     Error         0          96s
+orders-api-776d585b77-gf2g8       0/1     Error         0          97s
+orders-api-776d585b77-gf2g8       0/1     Error         0          97s
+
+
+shekk@Shekkar MINGW64 ~
+$ kubectl get pods -n observability-demo
+NAME                              READY   STATUS    RESTARTS   AGE
+elasticsearch-775f5c9dbd-xtdsq    1/1     Running   0          76m
+fluent-bit-qjkpr                  1/1     Running   0          76m
+jaeger-78f74898bb-7wzj8           1/1     Running   0          76m
+kibana-6d7d74b7c7-h9xtr           1/1     Running   0          76m
+orders-api-69568755b-2fj4w        1/1     Running   0          77s
+orders-api-69568755b-z5ft2        1/1     Running   0          71s
+otel-collector-76886d8d4d-7jtrt   1/1     Running   0          76m
+
+
+**** 50 error due to selector mismatch ***
+
+$ kubectl get deployments/orders-api -n observability-demo  -o wide
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS   IMAGES             SELECTOR
+orders-api   2/2     2            2           15m   orders-api   orders-api:local   app=orders-api
+
+shekk@Shekkar MINGW64 ~
+$ kubectl get svc  orders-api -o wide  -n observability-demo
+NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE   SELECTOR
+orders-api   ClusterIP   10.96.218.171   <none>        8080/TCP   15m   app=orders-api-wrong-label
+
+shekk@Shekkar MINGW64 ~
+$ kubectl describe svc orders-api -n observability-demo
+Name:                     orders-api
+Namespace:                observability-demo
+Labels:                   <none>
+Annotations:              <none>
+Selector:                 app=orders-api-wrong-label
+Type:                     ClusterIP
+IP Family Policy:         SingleStack
+IP Families:              IPv4
+IP:                       10.96.218.171
+IPs:                      10.96.218.171
+Port:                     http  8080/TCP
+TargetPort:               8080/TCP
+Endpoints:
+Session Affinity:         None
+Internal Traffic Policy:  Cluster
+Events:                   <none>
+
+
+shekk@Shekkar MINGW64 ~
+$ kubectl get pods -n observability-demo -o wide|grep -i orders-api
+orders-api-85cb9c696b-cv9xw       1/1     Running   0          21m   10.244.0.37   observability-control-plane   <none>           <none>
+orders-api-85cb9c696b-mz28h       1/1     Running   0          21m   10.244.0.38   observability-control-plane   <none>           <none>
+
+
+If using Ingress, this usually causes:`503 Service Temporarily Unavailable

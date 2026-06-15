@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - 00-namespace.yaml
+  - 10-jaeger.yaml
+  - 20-otel-collector.yaml
+  - 30-efk.yaml
+  - 40-app.yaml
+  - 50-prometheus.yaml
+  - 60-loki-promtail.yaml
+  - 70-grafana.yaml

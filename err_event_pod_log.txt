@@ -1,0 +1,41 @@
+$  kubectl get events   -n observability-demo  |egrep -i "error|Failed|Backoff"
+23m         Warning   Failed              pod/orders-api-54b78d849f-d9dzz        Failed to pull image "orders-api:missing-lab-image": failed to pull and unpack image "docker.io/library/orders-api:missing-lab-image": failed to resolve reference "docker.io/library/orders-api:missing-lab-image": pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+23m         Warning   Failed              pod/orders-api-54b78d849f-d9dzz        Error: ErrImagePull
+80s         Normal    BackOff             pod/orders-api-54b78d849f-d9dzz        Back-off pulling image "orders-api:missing-lab-image"
+80s         Warning   Failed              pod/orders-api-54b78d849f-d9dzz        Error: ImagePullBackOff
+23m         Warning   Failed              pod/orders-api-54b78d849f-dwrbf        Failed to pull image "orders-api:missing-lab-image": failed to pull and unpack image "docker.io/library/orders-api:missing-lab-image": failed to resolve reference "docker.io/library/orders-api:missing-lab-image": pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+23m         Warning   Failed              pod/orders-api-54b78d849f-dwrbf        Error: ErrImagePull
+82s         Normal    BackOff             pod/orders-api-54b78d849f-dwrbf        Back-off pulling image "orders-api:missing-lab-image"
+82s         Warning   Failed              pod/orders-api-54b78d849f-dwrbf        Error: ImagePullBackOff
+
+
+$ kubectl get events -n kube-system --sort-by='.metadata.creationTimestamp' | grep -i Warning
+169m        Warning   Unhealthy        pod/kube-apiserver-observability-control-plane            Readiness probe failed: HTTP probe failed with statuscode: 500
+169m        Warning   Unhealthy        pod/kube-apiserver-observability-control-plane            Liveness probe failed: HTTP probe failed with statuscode: 500
+43m         Warning   Unhealthy        pod/coredns-589f44dc88-k597x                              Readiness probe failed: Get "http://10.244.0.3:8181/ready": dial tcp 10.244.0.3:8181: connect: connection refused
+42m         Warning   Unhealthy        pod/coredns-589f44dc88-k597x                              Readiness probe failed: HTTP probe failed with statuscode: 503
+42m         Warning   Unhealthy        pod/coredns-589f44dc88-mlbqp                              Readiness probe failed: HTTP probe failed with statuscode: 503
+
+
+$ kubectl get events -n kube-system --sort-by='.metadata.creationTimestamp'  |egrep -i "Read|Live|kill"
+170m        Warning   Unhealthy        pod/kube-apiserver-observability-control-plane            Readiness probe failed: HTTP probe failed with statuscode: 500
+170m        Warning   Unhealthy        pod/kube-apiserver-observability-control-plane            Liveness probe failed: HTTP probe failed with statuscode: 500
+44m         Normal    SandboxChanged   pod/etcd-observability-control-plane                      Pod sandbox changed, it will be killed and re-created.
+44m         Normal    SandboxChanged   pod/kube-controller-manager-observability-control-plane   Pod sandbox changed, it will be killed and re-created.
+44m         Normal    SandboxChanged   pod/kube-apiserver-observability-control-plane            Pod sandbox changed, it will be killed and re-created.
+44m         Normal    SandboxChanged   pod/kube-scheduler-observability-control-plane            Pod sandbox changed, it will be killed and re-created.
+44m         Normal    Pulled           pod/kube-apiserver-observability-control-plane            Container image "registry.k8s.io/kube-apiserver:v1.36.1" already present on machine and can be accessed by the pod
+44m         Normal    Pulled           pod/kube-proxy-g8p6g                                      Container image "registry.k8s.io/kube-proxy:v1.36.1" already present on machine and can be accessed by the pod
+44m         Normal    SandboxChanged   pod/kube-proxy-g8p6g                                      Pod sandbox changed, it will be killed and re-created.
+44m         Normal    SandboxChanged   pod/coredns-589f44dc88-mlbqp                              Pod sandbox changed, it will be killed and re-created.
+44m         Normal    Pulled           pod/etcd-observability-control-plane                      Container image "registry.k8s.io/etcd:3.6.8-0" already present on machine and can be accessed by the pod
+44m         Normal    SandboxChanged   pod/kindnet-vl2x2                                         Pod sandbox changed, it will be killed and re-created.
+44m         Normal    Pulled           pod/kindnet-vl2x2                                         Container image "docker.io/kindest/kindnetd:v20260528-9350166c" already present on machine and can be accessed by the pod
+44m         Normal    Pulled           pod/kube-controller-manager-observability-control-plane   Container image "registry.k8s.io/kube-controller-manager:v1.36.1" already present on machine and can be accessed by the pod
+44m         Normal    SandboxChanged   pod/coredns-589f44dc88-k597x                              Pod sandbox changed, it will be killed and re-created.
+44m         Normal    Pulled           pod/kube-scheduler-observability-control-plane            Container image "registry.k8s.io/kube-scheduler:v1.36.1" already present on machine and can be accessed by the pod
+44m         Normal    Pulled           pod/coredns-589f44dc88-k597x                              Container image "registry.k8s.io/coredns/coredns:v1.14.2" already present on machine and can be accessed by the pod
+44m         Normal    Pulled           pod/coredns-589f44dc88-mlbqp                              Container image "registry.k8s.io/coredns/coredns:v1.14.2" already present on machine and can be accessed by the pod
+44m         Warning   Unhealthy        pod/coredns-589f44dc88-k597x                              Readiness probe failed: Get "http://10.244.0.3:8181/ready": dial tcp 10.244.0.3:8181: connect: connection refused
+44m         Warning   Unhealthy        pod/coredns-589f44dc88-k597x                              Readiness probe failed: HTTP probe failed with statuscode: 503
+44m         Warning   Unhealthy        pod/coredns-589f44dc88-mlbqp                              Readiness probe failed: HTTP probe failed with statuscode: 503
