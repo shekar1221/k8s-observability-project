@@ -50,7 +50,7 @@ metadata:
 data:
   orders-api.json: |
     {
-      "title": "Orders API Metrics and Logs",
+      "title": "Shopping Cart API Metrics and Logs",
       "schemaVersion": 39,
       "version": 1,
       "refresh": "10s",
@@ -79,12 +79,12 @@ data:
         },
         {
           "type": "logs",
-          "title": "orders-api Logs from Loki",
+          "title": "Shopping Cart Logs from Loki",
           "gridPos": {"x": 0, "y": 8, "w": 24, "h": 10},
           "targets": [
             {
               "datasource": {"type": "loki", "uid": "loki"},
-              "expr": "{app=\"orders-api\"}"
+              "expr": "{app=\"orders-api\"} |= \"cart\""
             }
           ]
         }

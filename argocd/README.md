@@ -5,6 +5,7 @@ This folder adds Argo CD support for the same Kubernetes observability project.
 Use Argo CD to:
 
 - deploy the observability stack from Git
+- upgrade the shopping cart app through a GitOps overlay
 - detect drift when someone changes Kubernetes resources manually
 - sync the desired YAML back into the cluster
 - practice troubleshooting broken overlays from `troubleshooting-labs/`
@@ -186,6 +187,40 @@ The service selector should return to:
 
 ```text
 app: orders-api
+```
+
+## Upgrade the App with Argo CD
+
+An upgrade guide is included here:
+
+```text
+argocd/UPGRADE-WITH-ARGOCD.md
+```
+
+The upgrade overlay is:
+
+```text
+k8s-upgrades/v2
+```
+
+It changes:
+
+```text
+orders-api:local -> orders-api:v2
+APP_VERSION=v1 -> APP_VERSION=v2
+```
+
+For Kind, build and load the image before syncing Argo CD:
+
+```powershell
+docker build -t orders-api:v2 .\app
+kind load docker-image orders-api:v2 --name observability
+```
+
+Then apply:
+
+```powershell
+kubectl apply -f .\argocd\applications\observability-app-v2.yaml
 ```
 
 ## Step 6: Practice Error Labs Through Argo CD

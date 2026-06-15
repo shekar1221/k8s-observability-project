@@ -1,6 +1,6 @@
 # Kubernetes Observability Project with Kind, OpenTelemetry, EFK, Loki, Prometheus, Grafana, and Jaeger
 
-This project runs a small `orders-api` application on a Kind Kubernetes cluster and connects it to:
+This project runs a small shopping cart API named `orders-api` on a Kind Kubernetes cluster and connects it to:
 
 - OpenTelemetry Collector for trace collection
 - Jaeger for distributed tracing
@@ -128,7 +128,7 @@ kubectl get daemonset fluent-bit -n observability-demo
 kubectl get daemonset promtail -n observability-demo
 ```
 
-## Step 5: Test the Application
+## Step 5: Test the Shopping Cart Application
 
 Port-forward the app service:
 
@@ -140,10 +140,86 @@ Open another terminal and send traffic:
 
 ```bash
 curl http://localhost:8080/
-curl http://localhost:8080/orders
-curl http://localhost:8080/orders
+curl http://localhost:8080/products
+curl http://localhost:8080/cart
+curl -X POST http://localhost:8080/cart/items -H "Content-Type: application/json" -d "{\"product_id\":\"p100\",\"quantity\":1}"
+curl -X POST http://localhost:8080/cart/items -H "Content-Type: application/json" -d "{\"product_id\":\"p200\",\"quantity\":2}"
+curl http://localhost:8080/cart
+curl -X POST http://localhost:8080/checkout
 curl http://localhost:8080/orders
 curl http://localhost:8080/metrics
+```
+
+Expected `/products` response contains products like:
+
+```json
+{
+  "products": [
+    {
+      "id": "p100",
+      "name": "Laptop Backpack",
+      "price": 49.99,
+      "stock": 12
+    }
+  ]
+}
+```
+
+Expected `/cart` response after adding items:
+
+```json
+{
+  "cart": {
+    "item_count": 3,
+    "total": 99.97,
+    "items": [
+      {
+        "product_id": "p100",
+        "name": "Laptop Backpack",
+        "quantity": 1
+      }
+    ]
+  }
+}
+```
+
+Main API endpoints:
+
+```text
+GET    /
+GET    /products
+GET    /cart
+POST   /cart/items
+DELETE /cart/items/<product_id>
+POST   /checkout
+GET    /orders
+GET    /metrics
+GET    /healthz
+```
+
+Example cart add payload:
+
+```json
+{
+  "product_id": "p100",
+  "quantity": 1
+}
+```
+
+Common shopping-cart errors to test:
+
+```bash
+curl -X POST http://localhost:8080/cart/items -H "Content-Type: application/json" -d "{\"product_id\":\"bad-id\",\"quantity\":1}"
+curl -X POST http://localhost:8080/cart/items -H "Content-Type: application/json" -d "{\"product_id\":\"p100\",\"quantity\":999}"
+curl -X POST http://localhost:8080/checkout
+```
+
+These produce logs and metrics for troubleshooting scenarios such as:
+
+```text
+product_not_found
+insufficient_stock
+empty_cart
 ```
 
 Expected `/orders` response:
@@ -153,15 +229,13 @@ Expected `/orders` response:
   "orders": [
     {
       "id": "ord-1001",
-      "status": "paid"
+      "status": "paid",
+      "total": 49.99
     },
     {
       "id": "ord-1002",
-      "status": "packed"
-    },
-    {
-      "id": "ord-1003",
-      "status": "shipped"
+      "status": "packed",
+      "total": 24.99
     }
   ]
 }
@@ -186,13 +260,14 @@ In Jaeger:
 1. Select service `orders-api`.
 2. Click `Find Traces`.
 3. Open one trace.
-4. Look for spans such as `GET /orders` and `load_orders`.
+4. Look for spans such as `GET /products`, `POST /cart/items`, `POST /checkout`, `GET /orders`, `catalog_lookup`, `cart_add_item`, `checkout`, and `load_orders`.
 
 If no traces appear, generate more traffic:
 
 ```bash
-curl http://localhost:8080/orders
-curl http://localhost:8080/orders
+curl http://localhost:8080/products
+curl -X POST http://localhost:8080/cart/items -H "Content-Type: application/json" -d "{\"product_id\":\"p100\",\"quantity\":1}"
+curl -X POST http://localhost:8080/checkout
 ```
 
 Then check collector logs:
@@ -229,6 +304,8 @@ k8s-logs*
 Then go to `Discover` and search for:
 
 ```text
+cart item added
+checkout completed
 orders loaded
 ```
 
@@ -276,6 +353,9 @@ Practice PromQL:
 
 ```promql
 orders_api_http_requests_total
+shopping_cart_items
+shopping_cart_value_usd
+shopping_cart_checkouts_total
 ```
 
 ```promql
@@ -316,7 +396,7 @@ Grafana has these data sources preconfigured:
 Open:
 
 ```text
-Dashboards -> Observability Demo -> Orders API Metrics and Logs
+Dashboards -> Observability Demo -> Shopping Cart API Metrics and Logs
 ```
 
 In Grafana Explore, choose Loki and practice LogQL:
@@ -331,6 +411,14 @@ In Grafana Explore, choose Loki and practice LogQL:
 
 ```logql
 {app="orders-api"} |= "orders loaded"
+```
+
+```logql
+{app="orders-api"} |= "cart item added"
+```
+
+```logql
+{app="orders-api"} |= "checkout completed"
 ```
 
 Check Loki directly:
@@ -564,9 +652,9 @@ kubectl logs deploy/loki -n observability-demo
 
 ## Project Explanation
 
-The `orders-api` service sends traces to the OpenTelemetry Collector using OTLP. The collector receives spans, batches them, and forwards them to Jaeger. Jaeger lets you inspect request latency and trace spans.
+The `orders-api` service is a shopping cart API. It supports product browsing, adding/removing cart items, checkout, and order listing. It sends traces to the OpenTelemetry Collector using OTLP. The collector receives spans, batches them, and forwards them to Jaeger. Jaeger lets you inspect request latency and trace spans across cart flows such as product lookup, cart add, checkout, and order listing.
 
-The application exposes Prometheus metrics at `/metrics`. Prometheus scrapes that endpoint, and Grafana lets you query the data with PromQL.
+The application exposes Prometheus metrics at `/metrics`. Prometheus scrapes that endpoint, and Grafana lets you query the data with PromQL. The app exposes request metrics plus shopping cart gauges and checkout counters.
 
 The application writes logs to stdout. Fluent Bit runs as a Kubernetes DaemonSet, reads container logs from the node, adds Kubernetes metadata, and sends them to Elasticsearch. Kibana connects to Elasticsearch so you can search and inspect those logs.
 
