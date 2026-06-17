@@ -1,3 +1,16 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: elastic-credentials
+  namespace: observability-demo
+type: Opaque
+stringData:
+  ELASTIC_PASSWORD: ElasticDemo123!
+  KIBANA_SYSTEM_PASSWORD: KibanaSystem123!
+  KIBANA_SECURITY_ENCRYPTION_KEY: local-demo-kibana-security-key-0001
+  KIBANA_SAVED_OBJECTS_ENCRYPTION_KEY: local-demo-saved-objects-key-0001
+  KIBANA_REPORTING_ENCRYPTION_KEY: local-demo-reporting-key-0001
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -20,7 +33,18 @@ spec:
             - name: discovery.type
               value: single-node
             - name: xpack.security.enabled
+              value: "true"
+            - name: xpack.security.enrollment.enabled
               value: "false"
+            - name: xpack.security.http.ssl.enabled
+              value: "false"
+            - name: xpack.security.transport.ssl.enabled
+              value: "false"
+            - name: ELASTIC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: elastic-credentials
+                  key: ELASTIC_PASSWORD
             - name: ES_JAVA_OPTS
               value: "-Xms512m -Xmx512m"
           ports:
@@ -55,12 +79,63 @@ spec:
       labels:
         app: kibana
     spec:
+      initContainers:
+        - name: set-kibana-system-password
+          image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
+          command:
+            - sh
+            - -c
+            - |
+              until curl -fs -u "elastic:${ELASTIC_PASSWORD}" http://elasticsearch:9200/_cluster/health >/dev/null; do
+                echo "Waiting for secured Elasticsearch..."
+                sleep 5
+              done
+
+              curl -fs -u "elastic:${ELASTIC_PASSWORD}" \
+                -X POST http://elasticsearch:9200/_security/user/kibana_system/_password \
+                -H "Content-Type: application/json" \
+                -d "{\"password\":\"${KIBANA_SYSTEM_PASSWORD}\"}"
+          env:
+            - name: ELASTIC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: elastic-credentials
+                  key: ELASTIC_PASSWORD
+            - name: KIBANA_SYSTEM_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: elastic-credentials
+                  key: KIBANA_SYSTEM_PASSWORD
       containers:
         - name: kibana
           image: docker.elastic.co/kibana/kibana:8.13.4
           env:
             - name: ELASTICSEARCH_HOSTS
               value: http://elasticsearch:9200
+            - name: ELASTICSEARCH_USERNAME
+              value: kibana_system
+            - name: ELASTICSEARCH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: elastic-credentials
+                  key: KIBANA_SYSTEM_PASSWORD
+            - name: XPACK_SECURITY_ENABLED
+              value: "true"
+            - name: XPACK_SECURITY_ENCRYPTIONKEY
+              valueFrom:
+                secretKeyRef:
+                  name: elastic-credentials
+                  key: KIBANA_SECURITY_ENCRYPTION_KEY
+            - name: XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY
+              valueFrom:
+                secretKeyRef:
+                  name: elastic-credentials
+                  key: KIBANA_SAVED_OBJECTS_ENCRYPTION_KEY
+            - name: XPACK_REPORTING_ENCRYPTIONKEY
+              valueFrom:
+                secretKeyRef:
+                  name: elastic-credentials
+                  key: KIBANA_REPORTING_ENCRYPTION_KEY
           ports:
             - containerPort: 5601
               name: ui
@@ -143,6 +218,8 @@ data:
         Match           kube.*
         Host            elasticsearch
         Port            9200
+        HTTP_User       ${ELASTICSEARCH_USERNAME}
+        HTTP_Passwd     ${ELASTICSEARCH_PASSWORD}
         Index           k8s-logs
         Suppress_Type_Name On
 
@@ -172,6 +249,14 @@ spec:
       containers:
         - name: fluent-bit
           image: fluent/fluent-bit:3.0
+          env:
+            - name: ELASTICSEARCH_USERNAME
+              value: elastic
+            - name: ELASTICSEARCH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: elastic-credentials
+                  key: ELASTIC_PASSWORD
           volumeMounts:
             - name: varlog
               mountPath: /var/log

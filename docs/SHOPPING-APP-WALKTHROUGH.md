@@ -113,6 +113,15 @@ ipconfig /flushdns
 | `http://kibana.observability.local` | Kibana | Elasticsearch log search |
 | `http://loki.observability.local/loki/api/v1/label/app/values` | Loki API | Check log labels |
 
+### Tool Logins
+
+| Tool | Username | Password |
+|---|---|---|
+| Grafana | `admin` | `admin` |
+| Kibana | `elastic` | `ElasticDemo123!` |
+
+For Kibana, use `elastic` in the browser login page. The `kibana_system` user is only for Kibana to connect to Elasticsearch internally.
+
 ## 4. How Traffic Flows
 
 The request flow looks like this:
@@ -278,6 +287,12 @@ View Loki labels:
 curl.exe http://loki.observability.local/loki/api/v1/label/app/values
 ```
 
+Check Elasticsearch with security enabled:
+
+```powershell
+kubectl exec -n observability-demo deploy/elasticsearch -- curl -s -u "elastic:ElasticDemo123!" http://localhost:9200/_cluster/health?pretty
+```
+
 ## 7. Generate Demo Traffic
 
 Open the web app and click buttons:
@@ -384,7 +399,38 @@ Show checkout logs:
 
 If you get a parse error, confirm you selected the Loki data source, not Prometheus.
 
-## 9. Rebuild After Frontend Changes
+## 9. Kibana Beginner Steps
+
+Open Kibana:
+
+```text
+http://kibana.observability.local
+```
+
+Login:
+
+```text
+elastic / ElasticDemo123!
+```
+
+To view Kubernetes logs:
+
+1. Open the main menu.
+2. Go to **Analytics**.
+3. Open **Discover**.
+4. Select the data view named `Kubernetes Logs` or `k8s-logs*`.
+
+If the data view is missing, create it:
+
+1. Open **Stack Management**.
+2. Open **Data Views**.
+3. Create a data view named `Kubernetes Logs`.
+4. Use index pattern `k8s-logs*`.
+5. Use time field `@timestamp`.
+
+Kibana may show security-related warnings when Elasticsearch security is disabled. In this project, security is enabled in `k8s/30-efk.yaml`, and Kibana connects to Elasticsearch using the internal `kibana_system` user.
+
+## 10. Rebuild After Frontend Changes
 
 If you change frontend HTML, CSS, or Python code, rebuild and reload the image:
 
@@ -401,7 +447,7 @@ Then open:
 http://shop.observability.local
 ```
 
-## 10. Rebuild After Cart API Changes
+## 11. Rebuild After Cart API Changes
 
 If you change the cart API:
 
@@ -412,7 +458,7 @@ kubectl rollout restart deployment/cart-api -n observability-demo
 kubectl rollout status deployment/cart-api -n observability-demo --timeout=180s
 ```
 
-## 11. Common Problems
+## 12. Common Problems
 
 ### Hostname Not Found
 
@@ -502,7 +548,53 @@ Incorrect:
 {app="orders-api"} | = "cart"
 ```
 
-## 12. Simple Mental Model
+### Kibana Asks To Enable Security
+
+This means Kibana features need Elasticsearch security turned on.
+
+In this project, the fix is already in:
+
+- Elasticsearch security is enabled
+- Kibana uses the internal `kibana_system` user
+- Fluent Bit sends logs to Elasticsearch with authentication
+- Browser login uses `elastic / ElasticDemo123!`
+
+Apply the Kubernetes files again if needed:
+
+```powershell
+kubectl apply -k .\k8s
+kubectl rollout status deployment/elasticsearch -n observability-demo --timeout=300s
+kubectl rollout status deployment/kibana -n observability-demo --timeout=300s
+kubectl rollout status ds/fluent-bit -n observability-demo --timeout=180s
+```
+
+### Kibana Discover Shows No Logs
+
+First generate traffic:
+
+```powershell
+curl.exe http://shop.observability.local/checkout-demo
+```
+
+Then confirm Elasticsearch has log documents:
+
+```powershell
+kubectl exec -n observability-demo deploy/elasticsearch -- curl -s -u "elastic:ElasticDemo123!" http://localhost:9200/k8s-logs/_count?pretty
+```
+
+If the count is greater than zero, recreate the Kibana data view with:
+
+```text
+k8s-logs*
+```
+
+and time field:
+
+```text
+@timestamp
+```
+
+## 13. Simple Mental Model
 
 Remember it like this:
 
