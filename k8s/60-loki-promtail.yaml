@@ -126,25 +126,111 @@ data:
 
     scrape_configs:
       - job_name: kubernetes-pods
-        kubernetes_sd_configs:
-          - role: pod
         pipeline_stages:
           - cri: {}
-        relabel_configs:
-          - source_labels: [__meta_kubernetes_namespace]
-            target_label: namespace
-          - source_labels: [__meta_kubernetes_pod_name]
-            target_label: pod
-          - source_labels: [__meta_kubernetes_pod_container_name]
-            target_label: container
-          - source_labels: [__meta_kubernetes_pod_label_app]
-            target_label: app
-          - replacement: /var/log/pods/*$1/*.log
-            separator: /
-            source_labels:
-              - __meta_kubernetes_pod_uid
-              - __meta_kubernetes_pod_container_name
-            target_label: __path__
+        static_configs:
+          - targets: [localhost]
+            labels:
+              job: kubernetes-pods
+              namespace: observability-demo
+              app: orders-api
+              __path__: /var/log/pods/observability-demo_orders-api-*/*/*.log
+          - targets: [localhost]
+            labels:
+              job: kubernetes-pods
+              namespace: observability-demo
+              app: frontend
+              __path__: /var/log/pods/observability-demo_frontend-*/*/*.log
+          - targets: [localhost]
+            labels:
+              job: kubernetes-pods
+              namespace: observability-demo
+              app: cart-api
+              __path__: /var/log/pods/observability-demo_cart-api-*/*/*.log
+          - targets: [localhost]
+            labels:
+              job: kubernetes-pods
+              namespace: observability-demo
+              app: user-api
+              __path__: /var/log/pods/observability-demo_user-api-*/*/*.log
+          - targets: [localhost]
+            labels:
+              job: kubernetes-pods
+              namespace: observability-demo
+              app: payment-api
+              __path__: /var/log/pods/observability-demo_payment-api-*/*/*.log
+          - targets: [localhost]
+            labels:
+              job: kubernetes-pods
+              namespace: observability-demo
+              app: shipping-api
+              __path__: /var/log/pods/observability-demo_shipping-api-*/*/*.log
+          - targets: [localhost]
+            labels:
+              job: kubernetes-pods
+              namespace: observability-demo
+              app: grafana
+              __path__: /var/log/pods/observability-demo_grafana-*/*/*.log
+          - targets: [localhost]
+            labels:
+              job: kubernetes-pods
+              namespace: observability-demo
+              app: prometheus
+              __path__: /var/log/pods/observability-demo_prometheus-*/*/*.log
+          - targets: [localhost]
+            labels:
+              job: kubernetes-pods
+              namespace: observability-demo
+              app: jaeger
+              __path__: /var/log/pods/observability-demo_jaeger-*/*/*.log
+          - targets: [localhost]
+            labels:
+              job: kubernetes-pods
+              namespace: observability-demo
+              app: loki
+              __path__: /var/log/pods/observability-demo_loki-*/*/*.log
+          - targets: [localhost]
+            labels:
+              job: kubernetes-pods
+              namespace: observability-demo
+              app: kibana
+              __path__: /var/log/pods/observability-demo_kibana-*/*/*.log
+          - targets: [localhost]
+            labels:
+              job: kubernetes-pods
+              namespace: observability-demo
+              app: elasticsearch
+              __path__: /var/log/pods/observability-demo_elasticsearch-*/*/*.log
+          - targets: [localhost]
+            labels:
+              job: kubernetes-pods
+              namespace: observability-demo
+              app: mysql
+              __path__: /var/log/pods/observability-demo_mysql-*/*/*.log
+          - targets: [localhost]
+            labels:
+              job: kubernetes-pods
+              namespace: observability-demo
+              app: redis
+              __path__: /var/log/pods/observability-demo_redis-*/*/*.log
+          - targets: [localhost]
+            labels:
+              job: kubernetes-pods
+              namespace: observability-demo
+              app: otel-collector
+              __path__: /var/log/pods/observability-demo_otel-collector-*/*/*.log
+          - targets: [localhost]
+            labels:
+              job: kubernetes-pods
+              namespace: observability-demo
+              app: fluent-bit
+              __path__: /var/log/pods/observability-demo_fluent-bit-*/*/*.log
+          - targets: [localhost]
+            labels:
+              job: kubernetes-pods
+              namespace: observability-demo
+              app: promtail
+              __path__: /var/log/pods/observability-demo_promtail-*/*/*.log
 ---
 apiVersion: apps/v1
 kind: DaemonSet

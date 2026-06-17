@@ -93,10 +93,6 @@ kubectl version --client
 
 Create a cluster named `observability`:
 
-```bash
-kind create cluster --name observability
-```
-
 For ingress access from your browser, use the included Kind config instead:
 
 ```powershell
@@ -106,8 +102,15 @@ kind create cluster --config .\kind-config.yaml
 Then install the NGINX ingress controller:
 
 ```powershell
+For the clean/proper setup, recreate the cluster with your config:
+kind delete cluster --name observability
+kind create cluster --config .\kind-config.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.11.1/deploy/static/provider/kind/deploy.yaml
 kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=180s
+
+For a quick temporary workaround without recreating:
+
+kubectl -n ingress-nginx port-forward svc/ingress-nginx-controller 8080:80
 ```
 
 Add the entries from `scripts\hosts-entries.txt` to your Windows hosts file if you want browser URLs like `http://shop.observability.local`.
@@ -382,6 +385,28 @@ curl -X POST http://localhost:8080/checkout
 ```
 
 Then check collector logs:
+
+Use these PowerShell commands:
+$headers = @{ Host = "orders.observability.local" }
+
+Invoke-RestMethod -Uri "http://localhost/products" -Headers $headers
+Add item to cart:
+$headers = @{ Host = "orders.observability.local" }
+$body = @{ product_id = "p100"; quantity = 1 } | ConvertTo-Json
+
+Invoke-RestMethod `
+  -Method Post `
+  -Uri "http://localhost/cart/items" `
+  -Headers $headers `
+  -ContentType "application/json" `
+  -Body $body
+Checkout:
+$headers = @{ Host = "orders.observability.local" }
+
+Invoke-RestMethod `
+  -Method Post `
+  -Uri "http://localhost/checkout" `
+  -Headers $headers
 
 ```bash
 kubectl logs deploy/otel-collector -n observability-demo
