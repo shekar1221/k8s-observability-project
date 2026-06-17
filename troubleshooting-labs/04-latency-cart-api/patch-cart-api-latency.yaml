@@ -1,0 +1,13 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cart-api
+  namespace: observability-demo
+spec:
+  template:
+    spec:
+      containers:
+        - name: cart-api
+          env:
+            - name: SIMULATED_EXTRA_LATENCY_MS
+              value: "1500"

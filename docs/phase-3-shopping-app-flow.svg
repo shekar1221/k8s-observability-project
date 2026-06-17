@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Phase 3 Shopping application request flow</title>
+  <desc id="desc">Browser traffic enters ingress and frontend calls user, cart, orders, payment, and shipping APIs with Redis and MySQL dependencies.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#334155"/>
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 700 30px Arial, Helvetica, sans-serif; fill: #0f172a; }
+      .subtitle { font: 16px Arial, Helvetica, sans-serif; fill: #475569; }
+      .cluster { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 16; }
+      .svc { fill: #e0f2fe; stroke: #0284c7; stroke-width: 2; rx: 12; }
+      .data { fill: #fef3c7; stroke: #d97706; stroke-width: 2; rx: 12; }
+      .text { font: 700 17px Arial, Helvetica, sans-serif; fill: #1e293b; }
+      .small { font: 14px Arial, Helvetica, sans-serif; fill: #475569; }
+      .edge { stroke: #334155; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect class="bg" width="1280" height="720"/>
+  <text x="48" y="58" class="title">Phase 3: Shopping Application Flow</text>
+  <text x="48" y="88" class="subtitle">This is the business request path. It helps explain what happens when a customer opens the shop or performs checkout.</text>
+
+  <rect x="52" y="282" width="160" height="74" class="svc"/>
+  <text x="91" y="315" class="text">Browser</text>
+  <text x="86" y="339" class="small">shop URL</text>
+
+  <rect x="280" y="108" width="910" height="500" class="cluster"/>
+  <text x="564" y="146" class="text">Rancher-Managed Kubernetes Cluster</text>
+
+  <rect x="340" y="284" width="158" height="70" class="svc"/>
+  <text x="386" y="318" class="text">Ingress</text>
+  <text x="361" y="342" class="small">host routing</text>
+
+  <rect x="570" y="284" width="160" height="70" class="svc"/>
+  <text x="606" y="318" class="text">frontend</text>
+  <text x="591" y="342" class="small">/home, /checkout</text>
+
+  <rect x="820" y="180" width="138" height="58" class="svc"/>
+  <text x="860" y="215" class="text">user-api</text>
+  <rect x="1010" y="180" width="138" height="58" class="data"/>
+  <text x="1055" y="215" class="text">MySQL</text>
+
+  <rect x="820" y="270" width="138" height="58" class="svc"/>
+  <text x="860" y="305" class="text">cart-api</text>
+  <rect x="1010" y="270" width="138" height="58" class="data"/>
+  <text x="1057" y="305" class="text">Redis</text>
+
+  <rect x="820" y="360" width="138" height="58" class="svc"/>
+  <text x="846" y="395" class="text">orders-api</text>
+  <rect x="820" y="450" width="138" height="58" class="svc"/>
+  <text x="842" y="485" class="text">payment-api</text>
+  <rect x="1010" y="450" width="138" height="58" class="svc"/>
+  <text x="1028" y="485" class="text">shipping-api</text>
+
+  <path d="M212 319 L340 319" class="edge"/>
+  <path d="M498 319 L570 319" class="edge"/>
+  <path d="M730 319 C780 260 780 210 820 209" class="edge"/>
+  <path d="M958 209 L1010 209" class="edge"/>
+  <path d="M730 319 L820 299" class="edge"/>
+  <path d="M958 299 L1010 299" class="edge"/>
+  <path d="M730 319 C780 338 780 389 820 389" class="edge"/>
+  <path d="M730 319 C780 396 780 480 820 479" class="edge"/>
+  <path d="M958 479 L1010 479" class="edge"/>
+
+  <text x="52" y="650" class="small">Interview line: The frontend is the entry point. It calls user, cart, orders, payment, and shipping services. Redis and MySQL are backend dependencies.</text>
+</svg>

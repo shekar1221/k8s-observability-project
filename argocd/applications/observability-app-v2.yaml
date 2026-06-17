@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/shekar1221/k8s-observability-project.git
+    repoURL: REPLACE_WITH_YOUR_GIT_REPO_URL
     targetRevision: main
     path: k8s-upgrades/v2
   destination:

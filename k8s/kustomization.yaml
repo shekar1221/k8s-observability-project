@@ -6,6 +6,9 @@ resources:
   - 20-otel-collector.yaml
   - 30-efk.yaml
   - 40-app.yaml
+  - 45-platform-data.yaml
+  - 46-shopping-services.yaml
   - 50-prometheus.yaml
   - 60-loki-promtail.yaml
   - 70-grafana.yaml
+  - 80-ingress.yaml

@@ -63,6 +63,7 @@ FlaskInstrumentor().instrument_app(app)
 
 def simulate_latency(endpoint):
     latency_ms = random.randint(30, 180)
+    latency_ms += int(os.getenv("SIMULATED_EXTRA_LATENCY_MS", "0"))
     time.sleep(latency_ms / 1000)
     REQUEST_LATENCY.labels(endpoint).observe(latency_ms / 1000)
     return latency_ms

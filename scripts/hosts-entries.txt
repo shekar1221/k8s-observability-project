@@ -1,0 +1,11 @@
+127.0.0.1 shop.observability.local
+127.0.0.1 orders.observability.local
+127.0.0.1 cart.observability.local
+127.0.0.1 users.observability.local
+127.0.0.1 payment.observability.local
+127.0.0.1 shipping.observability.local
+127.0.0.1 grafana.observability.local
+127.0.0.1 prometheus.observability.local
+127.0.0.1 jaeger.observability.local
+127.0.0.1 kibana.observability.local
+127.0.0.1 loki.observability.local

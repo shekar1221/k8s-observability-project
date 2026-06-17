@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Phase 5 Troubleshooting and drift handling flow</title>
+  <desc id="desc">Troubleshooting starts with symptom, checks Kubernetes health, metrics, traces, logs, dependencies, and uses Argo CD to fix drift.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#334155"/>
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 700 30px Arial, Helvetica, sans-serif; fill: #0f172a; }
+      .subtitle { font: 16px Arial, Helvetica, sans-serif; fill: #475569; }
+      .step { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 14; }
+      .alert { fill: #fee2e2; stroke: #dc2626; stroke-width: 2; rx: 14; }
+      .fix { fill: #dcfce7; stroke: #16a34a; stroke-width: 2; rx: 14; }
+      .text { font: 700 16px Arial, Helvetica, sans-serif; fill: #1e293b; }
+      .small { font: 14px Arial, Helvetica, sans-serif; fill: #475569; }
+      .edge { stroke: #334155; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect class="bg" width="1280" height="720"/>
+  <text x="48" y="58" class="title">Phase 5: Troubleshooting Flow</text>
+  <text x="48" y="88" class="subtitle">Use this when the interviewer asks how you troubleshoot latency, 503 errors, missing logs, missing traces, or GitOps drift.</text>
+
+  <rect x="60" y="160" width="180" height="76" class="alert"/>
+  <text x="104" y="194" class="text">Symptom</text>
+  <text x="86" y="218" class="small">slow / 503 / no logs</text>
+
+  <rect x="300" y="160" width="180" height="76" class="step"/>
+  <text x="334" y="194" class="text">Kubernetes</text>
+  <text x="325" y="218" class="small">pods, svc, events</text>
+
+  <rect x="540" y="90" width="180" height="76" class="step"/>
+  <text x="580" y="124" class="text">Prometheus</text>
+  <text x="574" y="148" class="small">P95, errors, rate</text>
+
+  <rect x="540" y="230" width="180" height="76" class="step"/>
+  <text x="597" y="264" class="text">Jaeger</text>
+  <text x="578" y="288" class="small">slow span trace</text>
+
+  <rect x="780" y="90" width="180" height="76" class="step"/>
+  <text x="828" y="124" class="text">Logs</text>
+  <text x="806" y="148" class="small">Loki / Kibana</text>
+
+  <rect x="780" y="230" width="180" height="76" class="step"/>
+  <text x="815" y="264" class="text">Dependency</text>
+  <text x="817" y="288" class="small">Redis / MySQL</text>
+
+  <rect x="1020" y="160" width="180" height="76" class="fix"/>
+  <text x="1058" y="194" class="text">Fix and Verify</text>
+  <text x="1044" y="218" class="small">redeploy, compare</text>
+
+  <rect x="300" y="430" width="230" height="90" class="alert"/>
+  <text x="356" y="464" class="text">Drift Scenario</text>
+  <text x="324" y="488" class="small">live cluster differs from Git</text>
+
+  <rect x="610" y="430" width="230" height="90" class="step"/>
+  <text x="670" y="464" class="text">Argo CD Diff</text>
+  <text x="650" y="488" class="small">OutOfSync detected</text>
+
+  <rect x="920" y="430" width="230" height="90" class="fix"/>
+  <text x="978" y="464" class="text">Argo CD Sync</text>
+  <text x="946" y="488" class="small">restore desired state</text>
+
+  <path d="M240 198 L300 198" class="edge"/>
+  <path d="M480 198 C515 170 520 130 540 128" class="edge"/>
+  <path d="M480 198 C515 225 520 265 540 268" class="edge"/>
+  <path d="M720 128 L780 128" class="edge"/>
+  <path d="M720 268 L780 268" class="edge"/>
+  <path d="M960 128 C1000 145 1000 180 1020 198" class="edge"/>
+  <path d="M960 268 C1000 250 1000 215 1020 198" class="edge"/>
+  <path d="M530 475 L610 475" class="edge"/>
+  <path d="M840 475 L920 475" class="edge"/>
+
+  <text x="60" y="638" class="small">Interview line: I avoid guessing. I start with Kubernetes health, then use metrics to locate impact, traces to locate the slow span, logs to find cause, and Argo CD to correct drift.</text>
+</svg>

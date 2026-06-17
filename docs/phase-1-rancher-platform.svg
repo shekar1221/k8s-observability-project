@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Phase 1 Rancher managed Kubernetes platform</title>
+  <desc id="desc">Rancher manages Kubernetes clusters, namespaces, RBAC, ingress, secrets, and observability workloads.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#334155"/>
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 700 30px Arial, Helvetica, sans-serif; fill: #0f172a; }
+      .subtitle { font: 16px Arial, Helvetica, sans-serif; fill: #475569; }
+      .group { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 16; }
+      .blue { fill: #e0f2fe; stroke: #0284c7; stroke-width: 2; rx: 12; }
+      .green { fill: #dcfce7; stroke: #16a34a; stroke-width: 2; rx: 12; }
+      .amber { fill: #fef3c7; stroke: #d97706; stroke-width: 2; rx: 12; }
+      .text { font: 700 18px Arial, Helvetica, sans-serif; fill: #1e293b; }
+      .small { font: 14px Arial, Helvetica, sans-serif; fill: #475569; }
+      .edge { stroke: #334155; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect class="bg" width="1280" height="720"/>
+  <text x="48" y="58" class="title">Phase 1: Rancher Platform View</text>
+  <text x="48" y="88" class="subtitle">Use this picture to explain the enterprise version of the lab. Rancher manages the Kubernetes clusters; the app and observability stack run inside the cluster.</text>
+
+  <rect x="54" y="128" width="250" height="440" class="group"/>
+  <text x="88" y="164" class="text">Users and Teams</text>
+  <rect x="86" y="210" width="186" height="62" class="blue"/>
+  <text x="126" y="247" class="text">Developers</text>
+  <rect x="86" y="314" width="186" height="62" class="blue"/>
+  <text x="124" y="351" class="text">Platform Team</text>
+  <rect x="86" y="418" width="186" height="62" class="blue"/>
+  <text x="133" y="455" class="text">SRE / Ops</text>
+
+  <rect x="390" y="128" width="300" height="440" class="group"/>
+  <text x="466" y="164" class="text">Rancher</text>
+  <rect x="440" y="206" width="200" height="54" class="green"/>
+  <text x="487" y="239" class="text">Cluster Mgmt</text>
+  <rect x="440" y="286" width="200" height="54" class="green"/>
+  <text x="505" y="319" class="text">RBAC</text>
+  <rect x="440" y="366" width="200" height="54" class="green"/>
+  <text x="487" y="399" class="text">Namespaces</text>
+  <rect x="440" y="446" width="200" height="54" class="green"/>
+  <text x="495" y="479" class="text">Policies</text>
+
+  <rect x="782" y="128" width="414" height="440" class="group"/>
+  <text x="876" y="164" class="text">Managed Kubernetes Cluster</text>
+  <rect x="828" y="204" width="150" height="58" class="amber"/>
+  <text x="870" y="239" class="text">Ingress</text>
+  <rect x="1010" y="204" width="150" height="58" class="amber"/>
+  <text x="1050" y="239" class="text">Secrets</text>
+  <rect x="828" y="306" width="150" height="58" class="amber"/>
+  <text x="862" y="341" class="text">Workloads</text>
+  <rect x="1010" y="306" width="150" height="58" class="amber"/>
+  <text x="1046" y="341" class="text">Services</text>
+  <rect x="828" y="408" width="150" height="58" class="amber"/>
+  <text x="856" y="443" class="text">Argo CD</text>
+  <rect x="1010" y="408" width="150" height="58" class="amber"/>
+  <text x="1028" y="443" class="text">Observability</text>
+
+  <path d="M272 241 C330 241 350 233 440 233" class="edge"/>
+  <path d="M272 345 C330 345 350 313 440 313" class="edge"/>
+  <path d="M272 449 C330 449 350 473 440 473" class="edge"/>
+  <path d="M640 233 C720 233 740 233 828 233" class="edge"/>
+  <path d="M640 313 C720 313 740 335 828 335" class="edge"/>
+  <path d="M640 393 C720 393 740 437 828 437" class="edge"/>
+
+  <text x="58" y="648" class="small">Interview line: I practiced on Kind locally, but in enterprise/BFSI the same Kubernetes workloads would commonly run on Rancher/RKE2, OpenShift, EKS, AKS, GKE, or Tanzu.</text>
+</svg>

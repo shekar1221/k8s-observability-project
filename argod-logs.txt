@@ -1,0 +1,85 @@
+***** created ns ****
+PS D:\k8s-observability-project> kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s
+deployment.apps/argocd-server condition met
+PS D:\k8s-observability-project> kubectl get pods -n argocd
+NAME                                                READY   STATUS    RESTARTS      AGE
+argocd-application-controller-0                     1/1     Running   0             3m37s
+argocd-applicationset-controller-5bc66cf64c-h8mkj   1/1     Running   1 (65s ago)   3m38s
+argocd-dex-server-6757c445bb-llwgw                  1/1     Running   0             3m38s
+argocd-notifications-controller-846d8c8b79-dmnmd    1/1     Running   0             3m38s
+argocd-redis-697fdb7798-58bd7                       1/1     Running   0             3m37s
+argocd-repo-server-676ccbb646-q4pzh                 1/1     Running   0             3m37s
+argocd-server-7b8c88c5c5-w8q49                      1/1     Running   0             3m37s
+PS D:\k8s-observability-project> kubectl get ns
+NAME                 STATUS   AGE
+argocd               Active   4m31s
+default              Active   11m
+kube-node-lease      Active   11m
+kube-public          Active   11m
+kube-system          Active   11m
+local-path-storage   Active   11m
+PS D:\k8s-observability-project> kubectl get svc -n argocd
+NAME                                      TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+argocd-applicationset-controller          ClusterIP   10.96.125.184   <none>        7000/TCP,8080/TCP            5m35s
+argocd-dex-server                         ClusterIP   10.96.184.89    <none>        5556/TCP,5557/TCP,5558/TCP   5m35s
+argocd-metrics                            ClusterIP   10.96.128.190   <none>        8082/TCP                     5m35s
+argocd-notifications-controller-metrics   ClusterIP   10.96.42.213    <none>        9001/TCP                     5m35s
+argocd-redis                              ClusterIP   10.96.127.232   <none>        6379/TCP                     5m35s
+argocd-repo-server                        ClusterIP   10.96.31.5      <none>        8081/TCP,8084/TCP            5m35s
+argocd-server                             ClusterIP   10.96.241.53    <none>        80/TCP,443/TCP               5m35s
+argocd-server-metrics                     ClusterIP   10.96.24.27     <none>        8083/TCP                     5m35s
+PS D:\k8s-observability-project> kubectl port-forward svc/argocd-server -n argocd 8081:443
+Forwarding from 127.0.0.1:8081 -> 8080
+Forwarding from [::1]:8081 -> 8080
+PS D:\k8s-observability-project> kubectl port-forward svc/argocd-server -n argocd 8081:443
+Forwarding from 127.0.0.1:8081 -> 8080
+Forwarding from [::1]:8081 -> 8080
+Handling connection for 8081
+PS D:\k8s-observability-project> [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String((kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}")))
+DyuVGI7wd3yiVHNK
+PS D:\k8s-observability-project> 
+$ kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}"
+RHl1VkdJN3dkM3lpVkhOSw==
+PS D:\k8s-observability-project> kubectl apply -f .\argocd\applications\observability-app.yaml
+application.argoproj.io/observability-stack created
+PS D:\k8s-observability-project>
+
+
+$ kubectl get endpointslice -n observability-demo -l kubernetes.io/service-name=orders-api
+NAME               ADDRESSTYPE   PORTS   ENDPOINTS                 AGE
+orders-api-qpvjj   IPv4          8080    10.244.0.17,10.244.0.20   23m
+
+shekk@Shekkar MINGW64 ~ (main)
+$ kubectl get pods -n observability-demo
+NAME                              READY   STATUS             RESTARTS   AGE
+elasticsearch-775f5c9dbd-zmmhx    1/1     Running            0          23m
+fluent-bit-2tjlc                  1/1     Running            0          23m
+grafana-5b774f4d79-vtrrl          1/1     Running            0          23m
+jaeger-78f74898bb-wzw8d           1/1     Running            0          23m
+kibana-6d7d74b7c7-8jhd2           1/1     Running            0          23m
+loki-59f6c9fd47-tzfmj             1/1     Running            0          23m
+orders-api-85cb9c696b-dncjm       0/1     ImagePullBackOff   0          23m
+orders-api-85cb9c696b-pdb87       0/1     ImagePullBackOff   0          23m
+otel-collector-68fd59d85f-zd7m2   1/1     Running            0          23m
+prometheus-6dc765b4b6-pz9ds       1/1     Running            0          23m
+promtail-zgs5r                    1/1     Running            0          23m
+
+shekk@Shekkar MINGW64 ~ (main)
+$
+
+tells Argo CD:
+“Refresh this application now. Re-check Git and compare it with what is running in Kubernetes.”
+
+Breakdown:
+kubectl annotate: add/update a metadata annotation
+application observability-stack: the Argo CD Application object
+-n argocd: it exists in the argocd namespace
+argocd.argoproj.io/refresh=hard: special Argo CD annotation that forces a hard refresh
+--overwrite: replace the annotation if it already exists
+
+$ kubectl annotate application observability-stack -n argocd argocd.argoproj.io/refresh=hard --overwrite
+application.argoproj.io/observability-stack annotated
+
+$ kubectl get application observability-stack -n argocd
+NAME                  SYNC STATUS   HEALTH STATUS
+observability-stack   Synced        Degraded

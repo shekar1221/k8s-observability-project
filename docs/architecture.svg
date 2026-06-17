@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="title desc">
+  <title id="title">Shopping platform observability architecture</title>
+  <desc id="desc">Kind ingress routes traffic to shopping microservices. Services emit traces, metrics, and logs to OpenTelemetry, Prometheus, Jaeger, Loki, EFK, and Grafana.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#40513b"/>
+    </marker>
+    <style>
+      .bg { fill: #f8faf7; }
+      .group { fill: #ffffff; stroke: #c8d3c1; stroke-width: 2; rx: 14; }
+      .box { fill: #eef6ff; stroke: #6b93c7; stroke-width: 2; rx: 10; }
+      .data { fill: #fff4df; stroke: #d39a32; stroke-width: 2; rx: 10; }
+      .obs { fill: #edf8ef; stroke: #5d9b68; stroke-width: 2; rx: 10; }
+      .edge { stroke: #40513b; stroke-width: 2.6; fill: none; marker-end: url(#arrow); }
+      .dash { stroke-dasharray: 8 7; }
+      text { font-family: Arial, Helvetica, sans-serif; fill: #1f2933; }
+      .title { font-size: 30px; font-weight: 700; }
+      .label { font-size: 18px; font-weight: 700; }
+      .small { font-size: 14px; }
+      .tiny { font-size: 12px; fill: #4b5563; }
+    </style>
+  </defs>
+  <rect class="bg" width="1280" height="760"/>
+  <text x="44" y="52" class="title">Kind Shopping Cart Observability Lab</text>
+  <text x="44" y="80" class="small">OpenTelemetry + Prometheus + Grafana + Jaeger + EFK + Loki with GitOps-ready Kubernetes manifests</text>
+
+  <rect x="36" y="112" width="388" height="548" class="group"/>
+  <text x="62" y="148" class="label">Traffic and application</text>
+  <rect x="84" y="188" width="284" height="56" class="box"/>
+  <text x="126" y="222" class="label">Browser / curl</text>
+  <rect x="84" y="282" width="284" height="56" class="box"/>
+  <text x="130" y="316" class="label">NGINX Ingress</text>
+  <rect x="84" y="376" width="284" height="56" class="box"/>
+  <text x="139" y="410" class="label">frontend</text>
+  <rect x="72" y="488" width="132" height="52" class="box"/>
+  <text x="98" y="520" class="small">user-api</text>
+  <rect x="224" y="488" width="132" height="52" class="box"/>
+  <text x="250" y="520" class="small">cart-api</text>
+  <rect x="72" y="568" width="132" height="52" class="box"/>
+  <text x="93" y="600" class="small">orders-api</text>
+  <rect x="224" y="568" width="132" height="52" class="box"/>
+  <text x="241" y="600" class="small">payment / ship</text>
+
+  <rect x="476" y="112" width="290" height="548" class="group"/>
+  <text x="502" y="148" class="label">Platform data</text>
+  <rect x="536" y="255" width="170" height="72" class="data"/>
+  <text x="584" y="286" class="label">MySQL</text>
+  <text x="560" y="309" class="tiny">users / relational demo</text>
+  <rect x="536" y="440" width="170" height="72" class="data"/>
+  <text x="585" y="472" class="label">Redis</text>
+  <text x="567" y="495" class="tiny">cart session data</text>
+
+  <rect x="818" y="112" width="410" height="548" class="group"/>
+  <text x="844" y="148" class="label">Observability stack</text>
+  <rect x="876" y="190" width="144" height="58" class="obs"/>
+  <text x="903" y="225" class="small">OTel Collector</text>
+  <rect x="1042" y="190" width="132" height="58" class="obs"/>
+  <text x="1082" y="225" class="small">Jaeger</text>
+  <rect x="876" y="300" width="144" height="58" class="obs"/>
+  <text x="906" y="335" class="small">Prometheus</text>
+  <rect x="1042" y="300" width="132" height="58" class="obs"/>
+  <text x="1081" y="335" class="small">Grafana</text>
+  <rect x="876" y="410" width="144" height="58" class="obs"/>
+  <text x="910" y="445" class="small">Fluent Bit</text>
+  <rect x="1042" y="410" width="132" height="58" class="obs"/>
+  <text x="1070" y="445" class="small">Elastic/Kibana</text>
+  <rect x="876" y="520" width="144" height="58" class="obs"/>
+  <text x="914" y="555" class="small">Promtail</text>
+  <rect x="1042" y="520" width="132" height="58" class="obs"/>
+  <text x="1090" y="555" class="small">Loki</text>
+
+  <path d="M226 244 L226 282" class="edge"/>
+  <path d="M226 338 L226 376" class="edge"/>
+  <path d="M226 432 L138 488" class="edge"/>
+  <path d="M226 432 L290 488" class="edge"/>
+  <path d="M226 432 L138 568" class="edge"/>
+  <path d="M226 432 L290 568" class="edge"/>
+  <path d="M204 514 L536 291" class="edge"/>
+  <path d="M290 514 L536 476" class="edge"/>
+  <path d="M356 594 C530 640 735 640 876 549" class="edge dash"/>
+  <path d="M356 594 C550 558 704 238 876 219" class="edge dash"/>
+  <path d="M356 594 C555 500 715 330 876 329" class="edge dash"/>
+  <path d="M1020 219 L1042 219" class="edge"/>
+  <path d="M1020 329 L1042 329" class="edge"/>
+  <path d="M1020 439 L1042 439" class="edge"/>
+  <path d="M1020 549 L1042 549" class="edge"/>
+  <text x="708" y="222" class="tiny">traces</text>
+  <text x="716" y="328" class="tiny">metrics</text>
+  <text x="722" y="548" class="tiny">logs</text>
+</svg>

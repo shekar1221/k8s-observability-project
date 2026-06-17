@@ -1,0 +1,284 @@
+PS D:\k8s-observability-project> docker build -t orders-api:v2 .\app
+[+] Building 2.1s (11/11) FINISHED                        docker:desktop-linux
+ => [internal] load build definition from Dockerfile                      0.1s
+ => => transferring dockerfile: 265B                                      0.0s
+ => [internal] load metadata for docker.io/library/python:3.12-slim       1.2s
+ => [internal] load .dockerignore                                         0.0s
+ => => transferring context: 2B                                           0.0s
+ => [1/6] FROM docker.io/library/python:3.12-slim@sha256:d764629ce0ddd8c  0.1s
+ => => resolve docker.io/library/python:3.12-slim@sha256:d764629ce0ddd8c  0.1s
+ => [internal] load build context                                         0.1s
+ => => transferring context: 64B                                          0.0s
+ => CACHED [2/6] WORKDIR /app                                             0.0s
+ => CACHED [3/6] COPY requirements.txt .                                  0.0s
+ => CACHED [4/6] RUN pip install --no-cache-dir --upgrade pip setuptools  0.0s
+ => CACHED [5/6] RUN pip install --no-cache-dir -r requirements.txt       0.0s
+ => CACHED [6/6] COPY app.py .                                            0.0s
+ => exporting to image                                                    0.4s
+ => => exporting layers                                                   0.0s
+ => => exporting manifest sha256:856ea9e9fa36ff81791adc44f3b82f97f8fd2b9  0.0s
+ => => exporting config sha256:68713cf6cd8e0afdd79803221ad85af13e5a764e8  0.0s
+ => => exporting attestation manifest sha256:89b8de92388240c798127f7bac4  0.1s
+ => => exporting manifest list sha256:2fc6890fece8430a2675201190202e0e71  0.1s
+ => => naming to docker.io/library/orders-api:v2                          0.0s
+ => => unpacking to docker.io/library/orders-api:v2                       0.0s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/naly313fzvlbz9gc05m4rxwkd
+PS D:\k8s-observability-project> kind load docker-image orders-api:v2 --name observability
+Image: "orders-api:v2" with ID "sha256:2fc6890fece8430a2675201190202e0e71375f89012254f9d9b2bad13d32e9ca" not yet present on node "observability-control-plane", loading...
+
+PS D:\k8s-observability-project> docker images | findstr orders-api
+orders-api:local                                                                       a7abc9516bcf        272MB           65MB
+orders-api:v2                                                                          2fc6890fece8        272MB           65MB
+PS D:\k8s-observability-project>
+PS D:\k8s-observability-project> docker images | findstr orders-api
+orders-api:local                                                                       a7abc9516bcf        272MB           65MB
+orders-api:v2                                                                          2fc6890fece8        272MB           65MB
+PS D:\k8s-observability-project> git add .
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/app.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'argocd/README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'k8s/70-grafana.yaml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'argocd/UPGRADE-WITH-ARGOCD.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'argocd/applications/observability-app-v2.yaml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'k8s-upgrades/v2/kustomization.yaml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'k8s-upgrades/v2/patch-orders-api-v2.yaml', LF will be replaced by CRLF the next time Git touches it
+PS D:\k8s-observability-project> git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   README.md
+        new file:   Screenshot 2026-06-15 211013.png
+        new file:   Screenshot 2026-06-15 211224.png
+        new file:   app/__pycache__/app.cpython-312.pyc
+        modified:   app/app.py
+        new file:   argocd-install-log.txt
+        modified:   argocd/README.md
+        new file:   argocd/UPGRADE-WITH-ARGOCD.md
+        new file:   argocd/applications/observability-app-v2.yaml
+        new file:   git-error-fix.txt
+        new file:   image-failing-with-authorization.txt
+        new file:   image-failing-with-authorization.txt.bak
+        new file:   k8s-upgrades/v2/kustomization.yaml
+        new file:   k8s-upgrades/v2/patch-orders-api-v2.yaml
+        modified:   k8s/70-grafana.yaml
+
+PS D:\k8s-observability-project> git commit -m "add argocd v2 upgrade overlay"
+[main 7a95237] add argocd v2 upgrade overlay
+ 15 files changed, 1061 insertions(+), 36 deletions(-)
+ create mode 100644 Screenshot 2026-06-15 211013.png
+ create mode 100644 Screenshot 2026-06-15 211224.png
+ create mode 100644 app/__pycache__/app.cpython-312.pyc
+ create mode 100644 argocd-install-log.txt
+ create mode 100644 argocd/UPGRADE-WITH-ARGOCD.md
+ create mode 100644 argocd/applications/observability-app-v2.yaml
+ create mode 100644 git-error-fix.txt
+ create mode 100644 image-failing-with-authorization.txt
+ create mode 100644 image-failing-with-authorization.txt.bak
+ create mode 100644 k8s-upgrades/v2/kustomization.yaml
+ create mode 100644 k8s-upgrades/v2/patch-orders-api-v2.yaml
+PS D:\k8s-observability-project> git push
+Enumerating objects: 33, done.
+Counting objects: 100% (33/33), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (22/22), done.
+Writing objects: 100% (24/24), 321.28 KiB | 7.14 MiB/s, done.
+Total 24 (delta 5), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (5/5), completed with 4 local objects.
+To https://github.com/shekar1221/k8s-observability-project.git
+   6a6f25b..7a95237  main -> main
+PS D:\k8s-observability-project> git add .\argocd\applications\observability-app-v2.yaml
+PS D:\k8s-observability-project> git commit -m "configure argo cd v2 repo url"
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   argocd/applications/observability-app.yaml
+
+no changes added to commit (use "git add" and/or "git commit -a")
+PS D:\k8s-observability-project> git push
+Everything up-to-date
+PS D:\k8s-observability-project> git commit -a
+warning: in the working copy of 'argocd/applications/observability-app.yaml', LF will be replaced by CRLF the next time Git touches it
+Aborting commit due to empty commit message.
+PS D:\k8s-observability-project> git add .\argocd\applications\observability-app-v2.yaml
+warning: in the working copy of 'argocd/applications/observability-app-v2.yaml', LF will be replaced by CRLF the next time Git touches it
+PS D:\k8s-observability-project> git commit -m "configure argo v2 repo url"
+[main ff1b7ed] configure argo v2 repo url
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+PS D:\k8s-observability-project> git push
+Enumerating objects: 9, done.
+Counting objects: 100% (9/9), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (5/5), done.
+Writing objects: 100% (5/5), 509 bytes | 254.00 KiB/s, done.
+Total 5 (delta 3), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (3/3), completed with 3 local objects.
+To https://github.com/shekar1221/k8s-observability-project.git
+   7a95237..ff1b7ed  main -> main
+PS D:\k8s-observability-project>
+
+PS D:\k8s-observability-project> kubectl apply -f .\argocd\applications\observability-app-v2.yaml
+application.argoproj.io/observability-stack configured
+PS D:\k8s-observability-project> kubectl annotate application observability-stack -n argocd argocd.argoproj.io/refresh=hard --overwrite
+application.argoproj.io/observability-stack annotated
+PS D:\k8s-observability-project> kubectl rollout status deployment/orders-api -n observability-demo
+deployment "orders-api" successfully rolled out
+PS D:\k8s-observability-project> kubectl get pods -n observability-demo -l app=orders-api --show-labels
+NAME                         READY   STATUS    RESTARTS   AGE    LABELS
+orders-api-965f5c64f-bz8wj   1/1     Running   0          113s   app=orders-api,pod-template-hash=965f5c64f,version=v2
+orders-api-965f5c64f-qcc8m   1/1     Running   0          2m     app=orders-api,pod-template-hash=965f5c64f,version=v2
+PS D:\k8s-observability-project> kubectl port-forward svc/orders-api 8080:8080 -n observability-demo
+Unable to listen on port 8080: Listeners failed to create with the following errors: [unable to create listener: Error listen tcp4 127.0.0.1:8080: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted. unable to create listener: Error listen tcp6 [::1]:8080: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.]
+error: unable to listen on any of the requested ports: [{8080 8080}]
+
+$ jobs |grep 8080
+[4]   Running                 kubectl port-forward svc/orders-api 8080:8080 -n observability-demo &
+
+shekk@Shekkar MINGW64 ~ (main)
+$ ps -eaf
+     UID     PID    PPID  TTY        STIME COMMAND
+   shekk    2446    2445 pty1     20:22:10 /usr/bin/bash --login -i
+   shekk    2445    1210 ?        20:22:09 usr/bin/mintty --nodaemon -o AppID=GitForWindows.Bash -o App
+   shekk    2706    2446 pty1     20:54:36 C:\WINDOWS\system32\kubectl.exe port-forward svc/kibana 5601
+   shekk    1211    1210 pty0     16:18:23 /usr/bin/bash --login -i
+   shekk    2701    2446 pty1     20:54:24 C:\WINDOWS\system32\kubectl.exe port-forward svc/jaeger 1668
+   shekk    1699       1 cons0    18:30:28 /usr/bin/bash --init-file c:\Users\shekk\AppData\Local\Progr
+   shekk    2682    2446 pty1     20:51:52 C:\WINDOWS\system32\kubectl.exe port-forward svc/prometheus
+   shekk    1210       1 ?        16:18:23 usr/bin/mintty --nodaemon -o AppID=GitForWindows.Bash -o App
+   shekk    2677    2446 pty1     20:50:56 C:\WINDOWS\system32\kubectl.exe port-forward svc/grafana 300
+   shekk    2000    1211 pty0     19:24:03 C:\WINDOWS\system32\kubectl.exe port-forward svc/argocd-serv
+   shekk    2672    2446 pty1     20:50:29 C:\WINDOWS\system32\kubectl.exe port-forward svc/elasticsear
+   shekk    2784    2446 pty1     21:49:52 ps -eaf
+   shekk    2696    2446 pty1     20:53:54 C:\WINDOWS\system32\kubectl.exe port-forward svc/orders-api
+
+shekk@Shekkar MINGW64 ~ (main)
+$ kill -9 2696
+[4]   Killed                  kubectl port-forward svc/orders-api 8080:8080 -n observability-demo
+
+shekk@Shekkar MINGW64 ~ (main)
+Forwarding from [::1]:9200 -> 9200
+Forwarding from 127.0.0.1:3000 -> 3000
+Forwarding from [::1]:3000 -> 3000
+Forwarding from 127.0.0.1:9090 -> 9090
+Forwarding from [::1]:9090 -> 9090
+error: arguments in resource/name form must have a single resource and name
+Forwarding from 127.0.0.1:8080 -> 8080
+Forwarding from [::1]:8080 -> 8080
+Forwarding from 127.0.0.1:16686 -> 16686
+Forwarding from [::1]:16686 -> 16686
+Forwarding from 127.0.0.1:5601 -> 5601
+Forwarding from [::1]:5601 -> 5601
+NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                       AGE
+elasticsearch    ClusterIP   10.96.2.230     <none>        9200/TCP                      95m
+grafana          ClusterIP   10.96.123.151   <none>        3000/TCP                      95m
+jaeger           ClusterIP   10.96.39.158    <none>        16686/TCP,4317/TCP,4318/TCP   95m
+kibana           ClusterIP   10.96.58.55     <none>        5601/TCP                      95m
+loki             ClusterIP   10.96.47.240    <none>        3100/TCP                      95m
+orders-api       ClusterIP   10.96.91.125    <none>        8080/TCP                      95m
+otel-collector   ClusterIP   10.96.76.12     <none>        4317/TCP,4318/TCP,8888/TCP    95m
+prometheus       ClusterIP   10.96.249.39    <none>        9090/TCP                      95m
+Forwarding from 127.0.0.1:8080 -> 8080
+Forwarding from [::1]:8080 -> 8080
+Forwarding from 127.0.0.1:8080 -> 8080
+Forwarding from [::1]:8080 -> 8080
+
+$ curl http://localhost:8080/
+curl http://localhost:8080/products
+{"endpoints":["GET /products","GET /cart","POST /cart/items","DELETE /cart/items/<product_id>","POST /checkout","GET /orders","GET /metrics","GET /healthz"],"message":"Shopping cart observability demo","service":"orders-api","version":"v2"}
+{"products":[{"id":"p100","name":"Laptop Backpack","price":49.99,"stock":12},{"id":"p200","name":"Wireless Mouse","price":24.99,"stock":30},{"id":"p300","name":"USB-C Hub","price":39.99,"stock":18},{"id":"p400","name":"Noise Cancelling Headphones","price":129.99,"stock":8}]}
+
+shekk@Shekkar MINGW64 ~ (main)
+$ kubectl get deployment orders-api -n observability-demo -o jsonpath="{.spec.template.spec.containers[0].image}"
+orders-api:v2
+shekk@Shekkar MINGW64 ~ (main)
+$
+## Step 6: Roll Back to v1
+
+
+PS D:\k8s-observability-project> kubectl apply -f .\argocd\applications\observability-app.yaml
+application.argoproj.io/observability-stack configured
+PS D:\k8s-observability-project> kubectl annotate application observability-stack -n argocd argocd.argoproj.io/refresh=hard --overwrite
+application.argoproj.io/observability-stack annotated
+PS D:\k8s-observability-project> argocd app sync observability-stack
+argocd : The term 'argocd' is not recognized as the name of a cmdlet,
+function, script file, or operable program. Check the spelling of the
+name, or if a path was included, verify that the path is correct and try
+again.
+At line:1 char:1
++ argocd app sync observability-stack
++ ~~~~~~
+    + CategoryInfo          : ObjectNotFound: (argocd:String) [], CommandN
+   otFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+PS D:\k8s-observability-project> kubectl rollout status deployment/orders-api -n observability-demo
+deployment "orders-api" successfully rolled out
+PS D:\k8s-observability-project> kubectl get deployment orders-api -n observability-demo -o jsonpath="{.spec.template.spec.containers[0].image}"
+orders-api:local
+PS D:\k8s-observability-project>
+
+
+
+## Interview Explanation
+
+Use this:
+
+Argo CD is used to upgrade the shopping cart application through GitOps. The base app points to the `k8s/` path. For the upgrade, I created a Kustomize overlay at `k8s-upgrades/v2` that changes the app image to `orders-api:v2`, adds an `APP_VERSION=v2` environment variable, and labels pods with `version=v2`. After pushing the change to Git, Argo CD detects the desired state change and syncs it to the cluster. In Kind, the local image must be built and loaded into the Kind node before Argo CD syncs the deployment.
+
+## Troubleshooting Upgrade Problems
+
+### ImagePullBackOff
+
+Cause:
+
+```text
+orders-api:v2 was not loaded into Kind.
+```
+
+Fix:
+
+```powershell
+docker build -t orders-api:v2 .\app
+kind load docker-image orders-api:v2 --name observability
+kubectl rollout restart deployment/orders-api -n observability-demo
+```
+
+### Argo CD Still Shows Old Version
+
+Check app source path:
+
+```powershell
+kubectl describe application observability-stack -n argocd
+```
+
+Look for:
+
+```text
+Path: k8s-upgrades/v2
+```
+
+Refresh:
+
+```powershell
+kubectl annotate application observability-stack -n argocd argocd.argoproj.io/refresh=hard --overwrite
+```
+
+### Pods Running But Service Not Working
+
+Check endpoints:
+
+```powershell
+kubectl get endpoints orders-api -n observability-demo
+kubectl describe svc orders-api -n observability-demo
+```
+
+The Service selector should be:
+
+```text
+app=orders-api
+```

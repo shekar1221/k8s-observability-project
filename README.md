@@ -1,6 +1,15 @@
 # Kubernetes Observability Project with Kind, OpenTelemetry, EFK, Loki, Prometheus, Grafana, and Jaeger
 
-This project runs a small shopping cart API named `orders-api` on a Kind Kubernetes cluster and connects it to:
+This project runs a microservices shopping platform on a Kind Kubernetes cluster and connects it to:
+
+- `frontend`
+- `user-api`
+- `cart-api`
+- `orders-api`
+- `payment-api`
+- `shipping-api`
+- Redis for cart data
+- MySQL for user/order-style relational data
 
 - OpenTelemetry Collector for trace collection
 - Jaeger for distributed tracing
@@ -10,16 +19,51 @@ This project runs a small shopping cart API named `orders-api` on a Kind Kuberne
 - Grafana for Prometheus metrics, Loki logs, and Jaeger traces
 - Optional Argo CD GitOps deployment and error-recovery labs
 
+New to observability? Start with the latency runbook:
+
+```text
+docs/LATENCY-TROUBLESHOOTING.md
+```
+
+Preparing for interviews? Use:
+
+```text
+docs/INTERVIEW-PREP.md
+interview-code/
+```
+
+CI security scanning notes:
+
+```text
+docs/CI-SCANNING.md
+```
+
+Rancher-style phase-by-phase diagrams:
+
+```text
+docs/RANCHER-PHASE-DIAGRAMS.md
+```
+
 ## Architecture
+
+![Shopping platform observability architecture](docs/architecture.svg)
 
 ```text
 curl/browser
    |
    v
-orders-api service
+frontend service
    |
    v
-orders-api pods
+frontend pod
+   |
+   +--> user-api -> MySQL
+   +--> cart-api -> Redis
+   +--> orders-api
+   +--> payment-api
+   +--> shipping-api
+
+All app pods
    |                         |                       |
    | OTLP traces             | /metrics              | stdout logs
    v                         v                       v
@@ -53,6 +97,21 @@ Create a cluster named `observability`:
 kind create cluster --name observability
 ```
 
+For ingress access from your browser, use the included Kind config instead:
+
+```powershell
+kind create cluster --config .\kind-config.yaml
+```
+
+Then install the NGINX ingress controller:
+
+```powershell
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.11.1/deploy/static/provider/kind/deploy.yaml
+kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=180s
+```
+
+Add the entries from `scripts\hosts-entries.txt` to your Windows hosts file if you want browser URLs like `http://shop.observability.local`.
+
 Confirm the cluster is running:
 
 ```bash
@@ -68,10 +127,21 @@ kubectl config use-context kind-observability
 
 ## Step 2: Build the Application Docker Image
 
-From this project folder:
+From this project folder, build all local service images:
 
 ```bash
 docker build -t orders-api:local ./app
+docker build -t shopping-frontend:local -f ./services/frontend/Dockerfile .
+docker build -t user-api:local -f ./services/user-api/Dockerfile .
+docker build -t cart-api:local -f ./services/cart-api/Dockerfile .
+docker build -t payment-api:local -f ./services/payment-api/Dockerfile .
+docker build -t shipping-api:local -f ./services/shipping-api/Dockerfile .
+```
+
+On Windows PowerShell, you can build and load all local images in one step:
+
+```powershell
+.\scripts\build-load-kind.ps1
 ```
 
 ## Step 3: Load the Image into Kind
@@ -80,6 +150,11 @@ Kind does not automatically see images from your local Docker engine. Load the i
 
 ```bash
 kind load docker-image orders-api:local --name observability
+kind load docker-image shopping-frontend:local --name observability
+kind load docker-image user-api:local --name observability
+kind load docker-image cart-api:local --name observability
+kind load docker-image payment-api:local --name observability
+kind load docker-image shipping-api:local --name observability
 ```
 
 Verify the image is available inside the Kind node:
@@ -102,6 +177,12 @@ Deploy the namespace, app, OpenTelemetry Collector, Jaeger, Elasticsearch, Fluen
 kubectl apply -k ./k8s
 ```
 
+If you want one command for the full Kind lab, including cluster creation, ingress, image build/load, and Kubernetes apply:
+
+```powershell
+.\scripts\start-kind-full.ps1
+```
+
 Check all pods:
 
 ```bash
@@ -111,7 +192,14 @@ kubectl get pods -n observability-demo
 Wait for the main deployments:
 
 ```bash
+kubectl wait --for=condition=available deployment/frontend -n observability-demo --timeout=180s
+kubectl wait --for=condition=available deployment/user-api -n observability-demo --timeout=180s
+kubectl wait --for=condition=available deployment/cart-api -n observability-demo --timeout=180s
 kubectl wait --for=condition=available deployment/orders-api -n observability-demo --timeout=180s
+kubectl wait --for=condition=available deployment/payment-api -n observability-demo --timeout=180s
+kubectl wait --for=condition=available deployment/shipping-api -n observability-demo --timeout=180s
+kubectl wait --for=condition=available deployment/mysql -n observability-demo --timeout=300s
+kubectl wait --for=condition=available deployment/redis -n observability-demo --timeout=180s
 kubectl wait --for=condition=available deployment/otel-collector -n observability-demo --timeout=180s
 kubectl wait --for=condition=available deployment/jaeger -n observability-demo --timeout=180s
 kubectl wait --for=condition=available deployment/elasticsearch -n observability-demo --timeout=300s
@@ -133,21 +221,44 @@ kubectl get daemonset promtail -n observability-demo
 Port-forward the app service:
 
 ```bash
-kubectl port-forward svc/orders-api 8080:8080 -n observability-demo
+kubectl port-forward svc/frontend 8080:8080 -n observability-demo
 ```
 
 Open another terminal and send traffic:
 
 ```bash
 curl http://localhost:8080/
-curl http://localhost:8080/products
-curl http://localhost:8080/cart
-curl -X POST http://localhost:8080/cart/items -H "Content-Type: application/json" -d "{\"product_id\":\"p100\",\"quantity\":1}"
-curl -X POST http://localhost:8080/cart/items -H "Content-Type: application/json" -d "{\"product_id\":\"p200\",\"quantity\":2}"
-curl http://localhost:8080/cart
-curl -X POST http://localhost:8080/checkout
-curl http://localhost:8080/orders
-curl http://localhost:8080/metrics
+curl http://localhost:8080/home
+curl http://localhost:8080/checkout-demo
+```
+
+You can also test individual APIs:
+
+```bash
+kubectl port-forward svc/orders-api 8081:8080 -n observability-demo
+kubectl port-forward svc/cart-api 8082:8080 -n observability-demo
+kubectl port-forward svc/user-api 8083:8080 -n observability-demo
+```
+
+Then:
+
+```bash
+curl http://localhost:8081/products
+curl http://localhost:8082/cart/u100
+curl http://localhost:8083/users/u100
+```
+
+Orders API examples:
+
+```bash
+curl http://localhost:8081/products
+curl http://localhost:8081/cart
+curl -X POST http://localhost:8081/cart/items -H "Content-Type: application/json" -d "{\"product_id\":\"p100\",\"quantity\":1}"
+curl -X POST http://localhost:8081/cart/items -H "Content-Type: application/json" -d "{\"product_id\":\"p200\",\"quantity\":2}"
+curl http://localhost:8081/cart
+curl -X POST http://localhost:8081/checkout
+curl http://localhost:8081/orders
+curl http://localhost:8081/metrics
 ```
 
 Expected `/products` response contains products like:
@@ -574,6 +685,12 @@ kind load docker-image orders-api:local --name observability
 kubectl rollout restart deployment/orders-api -n observability-demo
 ```
 
+For the full microservices platform, build/load all app images:
+
+```powershell
+.\scripts\build-load-kind.ps1
+```
+
 ### Kibana or Elasticsearch Takes Too Long
 
 Elasticsearch and Kibana need more memory than the demo app. If pods stay pending or crash, check Docker Desktop memory settings and give Docker at least 6 GB RAM.
@@ -652,7 +769,7 @@ kubectl logs deploy/loki -n observability-demo
 
 ## Project Explanation
 
-The `orders-api` service is a shopping cart API. It supports product browsing, adding/removing cart items, checkout, and order listing. It sends traces to the OpenTelemetry Collector using OTLP. The collector receives spans, batches them, and forwards them to Jaeger. Jaeger lets you inspect request latency and trace spans across cart flows such as product lookup, cart add, checkout, and order listing.
+The project is a shopping platform built from multiple services. The frontend calls user, cart, orders, payment, and shipping APIs. Redis stores cart state, and MySQL supports relational user data. Each service sends traces to the OpenTelemetry Collector using OTLP. The collector receives spans, batches them, and forwards them to Jaeger. Jaeger lets you inspect request latency and trace spans across frontend, cart, payment, shipping, and order flows.
 
 The application exposes Prometheus metrics at `/metrics`. Prometheus scrapes that endpoint, and Grafana lets you query the data with PromQL. The app exposes request metrics plus shopping cart gauges and checkout counters.
 

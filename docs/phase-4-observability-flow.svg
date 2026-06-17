@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Phase 4 Observability signal flow</title>
+  <desc id="desc">Application services produce metrics, logs, and traces. Prometheus, Loki, EFK, Jaeger, and Grafana consume those signals.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#334155"/>
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 700 30px Arial, Helvetica, sans-serif; fill: #0f172a; }
+      .subtitle { font: 16px Arial, Helvetica, sans-serif; fill: #475569; }
+      .box { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 16; }
+      .app { fill: #e0f2fe; stroke: #0284c7; stroke-width: 2; rx: 12; }
+      .metric { fill: #dcfce7; stroke: #16a34a; stroke-width: 2; rx: 12; }
+      .log { fill: #fef3c7; stroke: #d97706; stroke-width: 2; rx: 12; }
+      .trace { fill: #ede9fe; stroke: #7c3aed; stroke-width: 2; rx: 12; }
+      .text { font: 700 17px Arial, Helvetica, sans-serif; fill: #1e293b; }
+      .small { font: 14px Arial, Helvetica, sans-serif; fill: #475569; }
+      .edge { stroke: #334155; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect class="bg" width="1280" height="720"/>
+  <text x="48" y="58" class="title">Phase 4: Observability Signal Flow</text>
+  <text x="48" y="88" class="subtitle">Explain this as three signals: metrics for numbers, logs for events, and traces for request path and latency.</text>
+
+  <rect x="62" y="172" width="250" height="306" class="box"/>
+  <text x="114" y="210" class="text">Application Services</text>
+  <rect x="106" y="252" width="162" height="52" class="app"/>
+  <text x="144" y="284" class="small">frontend</text>
+  <rect x="106" y="324" width="162" height="52" class="app"/>
+  <text x="136" y="356" class="small">cart-api</text>
+  <rect x="106" y="396" width="162" height="52" class="app"/>
+  <text x="129" y="428" class="small">orders-api</text>
+
+  <rect x="420" y="140" width="210" height="84" class="metric"/>
+  <text x="486" y="174" class="text">Metrics</text>
+  <text x="462" y="199" class="small">/metrics endpoint</text>
+  <rect x="420" y="318" width="210" height="84" class="trace"/>
+  <text x="496" y="352" class="text">Traces</text>
+  <text x="458" y="377" class="small">OpenTelemetry OTLP</text>
+  <rect x="420" y="496" width="210" height="84" class="log"/>
+  <text x="506" y="530" class="text">Logs</text>
+  <text x="468" y="555" class="small">stdout pod logs</text>
+
+  <rect x="742" y="140" width="180" height="84" class="metric"/>
+  <text x="784" y="174" class="text">Prometheus</text>
+  <text x="784" y="199" class="small">PromQL</text>
+  <rect x="742" y="288" width="180" height="84" class="trace"/>
+  <text x="760" y="322" class="text">OTel Collector</text>
+  <text x="790" y="347" class="small">batch/export</text>
+  <rect x="998" y="288" width="160" height="84" class="trace"/>
+  <text x="1050" y="322" class="text">Jaeger</text>
+  <text x="1032" y="347" class="small">trace search</text>
+  <rect x="742" y="456" width="180" height="84" class="log"/>
+  <text x="790" y="490" class="text">Promtail</text>
+  <text x="784" y="515" class="small">collect logs</text>
+  <rect x="998" y="456" width="160" height="84" class="log"/>
+  <text x="1059" y="490" class="text">Loki</text>
+  <text x="1038" y="515" class="small">LogQL</text>
+  <rect x="742" y="570" width="180" height="60" class="log"/>
+  <text x="770" y="606" class="text">Fluent Bit</text>
+  <rect x="998" y="570" width="160" height="60" class="log"/>
+  <text x="1020" y="606" class="text">Elastic/Kibana</text>
+
+  <rect x="998" y="120" width="160" height="84" class="metric"/>
+  <text x="1043" y="154" class="text">Grafana</text>
+  <text x="1026" y="179" class="small">dashboards</text>
+
+  <path d="M312 278 C360 250 378 182 420 182" class="edge"/>
+  <path d="M312 350 L420 360" class="edge"/>
+  <path d="M312 424 C360 468 378 538 420 538" class="edge"/>
+  <path d="M630 182 L742 182" class="edge"/>
+  <path d="M922 182 L998 162" class="edge"/>
+  <path d="M630 360 L742 330" class="edge"/>
+  <path d="M922 330 L998 330" class="edge"/>
+  <path d="M630 538 L742 498" class="edge"/>
+  <path d="M922 498 L998 498" class="edge"/>
+  <path d="M630 538 C690 590 710 600 742 600" class="edge"/>
+  <path d="M922 600 L998 600" class="edge"/>
+  <path d="M1078 456 C1078 368 1078 280 1078 204" class="edge"/>
+  <path d="M1078 288 C1078 248 1078 230 1078 204" class="edge"/>
+
+  <text x="52" y="670" class="small">Interview line: I use Prometheus to find the slow service, Jaeger to find the slow span, and Loki/Kibana logs to understand why it happened.</text>
+</svg>
