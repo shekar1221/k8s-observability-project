@@ -13,6 +13,7 @@ PRODUCTS = {
     "p100": {"id": "p100", "name": "Laptop Backpack", "price": 49.99},
     "p200": {"id": "p200", "name": "Wireless Mouse", "price": 24.99},
     "p300": {"id": "p300", "name": "USB-C Hub", "price": 39.99},
+    "p400": {"id": "p400", "name": "Noise Cancelling Headphones", "price": 129.99},
 }
 FALLBACK_CART = {}
 
@@ -53,7 +54,7 @@ def summarize(cart):
 
 @app.get("/")
 def home():
-    return {"service": SERVICE_NAME, "endpoints": ["/cart/<user_id>", "/cart/items", "/metrics", "/healthz"]}
+    return {"service": SERVICE_NAME, "endpoints": ["/cart/<user_id>", "/cart/items", "/cart/clear", "/metrics", "/healthz"]}
 
 
 @app.get("/cart/<user_id>")
@@ -81,6 +82,32 @@ def add_item():
         summary = summarize(cart)
         logger.info("cart item added user_id=%s product_id=%s total=%s", user_id, product_id, summary["total"])
         return jsonify(cart=summary), 201
+
+
+@app.delete("/cart/items/<product_id>")
+def remove_item(product_id):
+    user_id = request.args.get("user_id", "u100")
+    with tracer.start_as_current_span("cart_remove_item"):
+        simulate("/cart/items/<product_id>")
+        cart = read_cart(user_id)
+        if product_id not in cart:
+            return jsonify(error="item_not_in_cart", product_id=product_id), 404
+        del cart[product_id]
+        write_cart(user_id, cart)
+        summary = summarize(cart)
+        logger.info("cart item removed user_id=%s product_id=%s total=%s", user_id, product_id, summary["total"])
+        return jsonify(cart=summary)
+
+
+@app.post("/cart/clear")
+def clear_cart():
+    body = request.get_json(silent=True) or {}
+    user_id = body.get("user_id", "u100")
+    with tracer.start_as_current_span("cart_clear"):
+        simulate("/cart/clear")
+        write_cart(user_id, {})
+        logger.info("cart cleared user_id=%s", user_id)
+        return jsonify(cart=summarize({}))
 
 
 if __name__ == "__main__":

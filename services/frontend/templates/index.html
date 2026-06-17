@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SummitCart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <header class="app-header">
+      <a class="brand" href="/" aria-label="SummitCart home">
+        <span class="brand-mark">SC</span>
+        <span class="brand-copy">
+          <strong>SummitCart</strong>
+          <span>Shopping platform</span>
+        </span>
+      </a>
+
+      <nav class="header-nav" aria-label="Application navigation">
+        <a href="#products">Products</a>
+        <a href="#cart">Cart</a>
+        <a href="#observability">Observability</a>
+        <a href="#routes">Routes</a>
+      </nav>
+    </header>
+
+    <main class="app-shell">
+      <section id="products" class="storefront" aria-labelledby="catalog-title">
+        <div class="toolbar">
+          <div>
+            <p class="eyebrow">Welcome back, {{ user.name }}</p>
+            <h1 id="catalog-title">Shop essentials</h1>
+          </div>
+          <div class="profile-pill">
+            <span>{{ user.tier | title }}</span>
+            <strong>{{ cart.item_count }} item{% if cart.item_count != 1 %}s{% endif %}</strong>
+          </div>
+        </div>
+
+        {% if notice %}
+        <div class="notice notice-success" role="status">{{ notice }}</div>
+        {% endif %}
+        {% if error %}
+        <div class="notice notice-error" role="alert">{{ error }}</div>
+        {% endif %}
+        {% if payment_id or shipment_id %}
+        <div class="notice notice-success" role="status">
+          Payment {{ payment_id or "created" }} and shipment {{ shipment_id or "created" }} are ready.
+        </div>
+        {% endif %}
+
+        <div class="product-grid">
+          {% for product in products %}
+          <article class="product-card product-{{ product.accent or 'green' }}">
+            <div class="product-visual">
+              <span>{{ product.tag or "Shop" }}</span>
+            </div>
+            <div class="product-body">
+              <div class="product-heading">
+                <h2>{{ product.name }}</h2>
+                <strong>${{ "%.2f"|format(product.price) }}</strong>
+              </div>
+              <p>{{ product.summary }}</p>
+              <div class="product-meta">
+                <span>Stock {{ product.stock }}</span>
+                <span>{{ product.id }}</span>
+              </div>
+              <form class="product-actions" method="post" action="/cart/items">
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <label>
+                  <span>Qty</span>
+                  <input type="number" name="quantity" value="1" min="1" max="9">
+                </label>
+                <button type="submit">Add</button>
+              </form>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+
+        <section id="observability" class="link-section" aria-labelledby="observability-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Observability</p>
+              <h2 id="observability-title">Monitor the platform</h2>
+            </div>
+          </div>
+          <div class="link-grid">
+            <a class="link-card" href="http://grafana.observability.local">
+              <span>Dashboards</span>
+              <strong>Grafana</strong>
+              <small>Metrics, Loki logs, and panels</small>
+            </a>
+            <a class="link-card" href="http://prometheus.observability.local">
+              <span>Metrics</span>
+              <strong>Prometheus</strong>
+              <small>Query PromQL and scrape targets</small>
+            </a>
+            <a class="link-card" href="http://jaeger.observability.local">
+              <span>Traces</span>
+              <strong>Jaeger</strong>
+              <small>Follow checkout calls across services</small>
+            </a>
+            <a class="link-card" href="http://kibana.observability.local">
+              <span>Search</span>
+              <strong>Kibana</strong>
+              <small>Explore Elasticsearch log data</small>
+            </a>
+            <a class="link-card" href="http://loki.observability.local/loki/api/v1/label/app/values">
+              <span>Logs API</span>
+              <strong>Loki</strong>
+              <small>Check available app log labels</small>
+            </a>
+          </div>
+        </section>
+
+        <section id="routes" class="link-section" aria-labelledby="routes-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Demo routes</p>
+              <h2 id="routes-title">Open service endpoints</h2>
+            </div>
+          </div>
+          <div class="route-list">
+            <a href="/">Storefront</a>
+            <a href="/home">Frontend API</a>
+            <a href="/checkout-demo">Checkout demo</a>
+            <a href="http://orders.observability.local/products">Products API</a>
+            <a href="http://orders.observability.local/orders">Orders API</a>
+            <a href="http://cart.observability.local/">Cart API</a>
+            <a href="http://users.observability.local/users">Users API</a>
+            <a href="http://payment.observability.local/">Payment API</a>
+            <a href="http://shipping.observability.local/">Shipping API</a>
+          </div>
+        </section>
+      </section>
+
+      <aside class="side-panel" aria-label="Cart and status">
+        <section id="cart" class="cart-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Cart</p>
+              <h2>${{ "%.2f"|format(cart.total) }}</h2>
+            </div>
+            <span class="cart-count">{{ cart.item_count }}</span>
+          </div>
+
+          {% if cart_items %}
+          <ul class="cart-list">
+            {% for item in cart_items %}
+            <li>
+              <div>
+                <strong>{{ item.name }}</strong>
+                <span>{{ item.quantity }} x ${{ "%.2f"|format(item.price) }}</span>
+              </div>
+              <form method="post" action="/cart/remove">
+                <input type="hidden" name="product_id" value="{{ item.id }}">
+                <button class="icon-button" type="submit" aria-label="Remove {{ item.name }}">X</button>
+              </form>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="empty-state">Your cart is empty.</p>
+          {% endif %}
+
+          <form class="checkout-actions" method="post" action="/checkout">
+            <button class="checkout-button" type="submit" {% if not cart_items %}disabled{% endif %}>Checkout</button>
+          </form>
+          <form method="post" action="/cart/clear">
+            <button class="secondary-button" type="submit" {% if not cart_items %}disabled{% endif %}>Clear cart</button>
+          </form>
+        </section>
+
+        <section id="services" class="status-panel">
+          <div class="panel-heading compact">
+            <p class="eyebrow">Services</p>
+          </div>
+          <div class="service-list">
+            {% for service in services %}
+            <div class="service-row">
+              <span class="status-dot {% if service.ok %}online{% endif %}"></span>
+              <span>{{ service.name }}</span>
+              <strong>{{ service.state }}</strong>
+            </div>
+            {% endfor %}
+          </div>
+        </section>
+      </aside>
+    </main>
+  </body>
+</html>
