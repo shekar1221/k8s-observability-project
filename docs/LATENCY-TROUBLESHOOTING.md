@@ -119,6 +119,58 @@ Port-forward version:
 }
 ```
 
+If a LoadBalancer (LB) is installed and working, you usually do not need port-forward.
+Use LoadBalancer when your frontend service has an external IP or hostname:
+kubectl get svc -n three-tier
+Look for something like:
+frontend   LoadBalancer   10.x.x.x   34.x.x.x.x   80:xxxxx/TCP
+Then generate traffic using the external IP:
+```
+for i in {1..30}; do
+  curl -s http://EXTERNAL-IP/home > /dev/null
+  curl -s http://EXTERNAL-IP/checkout-demo > /dev/null
+done
+```
+Example:
+```
+for i in {1..30}; do
+  curl -s http://34.120.10.50/home > /dev/null
+  curl -s http://34.120.10.50/checkout-demo > /dev/null
+done
+```
+Use port-forward only if:
+the service is ClusterIP
+LoadBalancer external IP is still <pending>
+you are testing locally
+DNS like shop.observability.local is not configured
+To check:
+kubectl get svc -n three-tier
+If frontend has a real EXTERNAL-IP, use LB.
+If it says <pending>, use port-forward:
+kubectl port-forward svc/frontend 8080:80 -n three-tier
+Use the LoadBalancer URL/IP.
+Run this first:
+kubectl get svc -n three-tier
+Find the frontend service and copy the EXTERNAL-IP.
+Then run traffic like this:
+```
+for i in {1..30}; do
+  curl -s http://EXTERNAL-IP/home > /dev/null
+  curl -s http://EXTERNAL-IP/checkout-demo > /dev/null
+done
+Example:
+for i in {1..30}; do
+  curl -s http://34.120.10.50/home > /dev/null
+  curl -s http://34.120.10.50/checkout-demo > /dev/null
+done
+If you have DNS configured:
+for i in {1..30}; do
+  curl -s http://shop.observability.local/home > /dev/null
+  curl -s http://shop.observability.local/checkout-demo > /dev/null
+done
+```
+Do not use port-forward if the LoadBalancer external IP is working.
+
 ## Step 5: Open Prometheus
 
 ```powershell
