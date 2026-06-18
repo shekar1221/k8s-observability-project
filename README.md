@@ -38,6 +38,13 @@ CI security scanning notes:
 docs/CI-SCANNING.md
 ```
 
+CI/CD test automation and real REST API integration:
+
+```text
+docs/CICD-TEST-AUTOMATION.md
+test-automation/
+```
+
 Rancher-style phase-by-phase diagrams:
 
 ```text

@@ -19,6 +19,7 @@ Workflow:
 | Hadolint | Dockerfile linting | Dockerfile best-practice issues |
 | Bandit | Python SAST | Risky Python code patterns |
 | pip-audit | Python dependency audit | Known CVEs in Python packages |
+| Trivy image scan | Container image vulnerability scan | Vulnerabilities in final built images |
 
 ## CI Flow
 
@@ -33,6 +34,8 @@ build and push images
 ```
 
 The image build runs only after validation and security scanning pass.
+
+The workflow also builds every service image in the `image-scan` job and scans it with Trivy before publishing images.
 
 ## Why These Tools Are Useful
 
@@ -57,6 +60,21 @@ Trivy scans the repository for:
 - Secrets
 
 In this workflow, Trivy fails CI for `HIGH` and `CRITICAL` findings.
+
+### Trivy Image Scanning
+
+Filesystem scanning checks source code and YAML. Image scanning checks the final container image after Docker build.
+
+The pipeline scans:
+
+- `orders-api`
+- `shopping-frontend`
+- `user-api`
+- `cart-api`
+- `payment-api`
+- `shipping-api`
+
+This is important because an image can contain vulnerable OS packages or installed dependencies even when the source code looks clean.
 
 ### Checkov
 
@@ -173,7 +191,7 @@ pip-audit -r services\common\requirements.txt
 Use this:
 
 ```text
-I added DevSecOps checks into the CI pipeline. The workflow first validates Kubernetes manifests and Python syntax. Then it runs security scans: kubeconform for Kubernetes schema validation, Trivy for vulnerabilities/secrets/misconfigurations, Checkov for IaC checks, Gitleaks for secret detection, Hadolint for Dockerfiles, Bandit for Python static security analysis, and pip-audit for Python dependency CVEs. Trivy, Gitleaks, Hadolint, Bandit, and pip-audit can block the build. Checkov is currently advisory so I can review Kubernetes hardening findings without stopping every learning build.
+I added DevSecOps checks into the CI pipeline. The workflow first validates Kubernetes manifests and Python syntax. Then it runs Java unit tests, security scans, and image scans. The security stage uses kubeconform, Trivy filesystem scanning, Checkov, Gitleaks, Hadolint, Bandit, and pip-audit. The image-scan stage builds every service image and scans it with Trivy before publishing. Trivy, Gitleaks, Hadolint, Bandit, and pip-audit can block the build. Checkov is currently advisory so I can review Kubernetes hardening findings without stopping every learning build.
 ```
 
 ## Common Interview Questions
