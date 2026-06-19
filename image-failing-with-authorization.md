@@ -1,4 +1,4 @@
-'''
+```
 $ kubectl describe pod orders-api-85cb9c696b-dncjm -n observability-demo  |tail
 
 Events:
@@ -11,8 +11,8 @@ Events:
   Normal   BackOff    4m45s (x87 over 29m)  kubelet            spec.containers{orders-api}: Back-off pulling image "orders-api:local"
   Warning  Failed     3m51s (x9 over 29m)   kubelet            spec.containers{orders-api}: Failed to pull image "orders-api:local": failed to pull and unpack image "docker.io/library/orders-api:local": failed to resolve reference "docker.io/library/orders-api:local": pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
   
- '''
-'''
+```
+```
  PS D:\k8s-observability-project> kind load docker-image orders-api:local --name observability
 Image: "orders-api:local" with ID "sha256:a7abc9516bcfe3543730bbd37d14c3837136b3c00ac4d85e4819f43e1723799f" not yet present on node "observability-control-plane", loading...
 PS D:\k8s-observability-project> kubectl rollout restart deployment/orders-api -n observability-demo
@@ -63,9 +63,10 @@ $ kubectl get endpoints orders-api -n observability-demo
 Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
 NAME         ENDPOINTS   AGE
 orders-api   <none>      57m
-'''
+```
 
 ****FIX ***
+```
 $ kubectl describe application observability-lab-02 -n argocd  |grep -i outofsync
   Normal  ResourceUpdated     26m    argocd-application-controller  Updated sync status:  -> OutOfSync
   Normal  ResourceUpdated     26m    argocd-application-controller  Updated sync status: OutOfSync -> Synced
@@ -93,10 +94,11 @@ $ kubectl get applications -n argocd
 NAME                   SYNC STATUS   HEALTH STATUS
 observability-lab-02   OutOfSync     Healthy
 observability-stack    OutOfSync     Healthy
-
+```
 
 
 ##### use argocd as well######
+```
 
 shekk@Shekkar MINGW64 ~ (main)
 $ kubectl delete application observability-lab-02 -n argocd
@@ -117,4 +119,4 @@ shekk@Shekkar MINGW64 ~ (main)
 $ kubectl get applications -n argocd
 NAME                  SYNC STATUS   HEALTH STATUS
 observability-stack   Synced        Healthy
-
+```
