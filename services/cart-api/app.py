@@ -14,6 +14,10 @@ PRODUCTS = {
     "p200": {"id": "p200", "name": "Wireless Mouse", "price": 24.99},
     "p300": {"id": "p300", "name": "USB-C Hub", "price": 39.99},
     "p400": {"id": "p400", "name": "Noise Cancelling Headphones", "price": 129.99},
+    "p500": {"id": "p500", "name": "Laptop ", "price": 549.99},
+    "p600": {"id": "p600", "name": "Printer", "price": 224.99},
+    "p700": {"id": "p700", "name": "Mobile", "price": 539.99},
+    "p700": {"id": "p800", "name": "Hard Disk", "price": 529.99},
 }
 FALLBACK_CART = {}
 
