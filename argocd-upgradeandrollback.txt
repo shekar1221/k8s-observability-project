@@ -223,13 +223,13 @@ orders-api:local
 PS D:\k8s-observability-project>
 
 
-
+``` bash
 ## Interview Explanation
 
 Use this:
 
 Argo CD is used to upgrade the shopping cart application through GitOps. The base app points to the `k8s/` path. For the upgrade, I created a Kustomize overlay at `k8s-upgrades/v2` that changes the app image to `orders-api:v2`, adds an `APP_VERSION=v2` environment variable, and labels pods with `version=v2`. After pushing the change to Git, Argo CD detects the desired state change and syncs it to the cluster. In Kind, the local image must be built and loaded into the Kind node before Argo CD syncs the deployment.
-
+```
 ## Troubleshooting Upgrade Problems
 
 ### ImagePullBackOff
