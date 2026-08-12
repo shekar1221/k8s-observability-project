@@ -239,6 +239,25 @@ kubectl apply -f .\argocd\error-lab-applications\lab-02-service-selector-503.yam
 
 Argo CD will deploy the broken desired state from Git.
 
+Example: patch a deployment
+kubectl patch deployment myapp \
+  -n prod \
+  --type='merge' \
+  -p '{"spec":{"replicas":5}}'
+
+This changes the replica count to 5.
+
+Example: add an annotation
+kubectl annotate deployment myapp \
+  -n prod \
+  restarted-at="2026-08-12T10:00:00Z"
+Argo CD-specific behavior
+
+Suppose your Git repository defines:
+
+spec:
+  replicas: 3
+
 To fix it, switch back to the working app:
 
 ```powershell
