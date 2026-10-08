@@ -5,6 +5,7 @@ metadata:
   namespace: observability-demo
 type: Opaque
 stringData:
+  ELASTIC_USERNAME: elastic
   ELASTIC_PASSWORD: ElasticDemo123!
   KIBANA_SYSTEM_PASSWORD: KibanaSystem123!
   KIBANA_SECURITY_ENCRYPTION_KEY: local-demo-kibana-security-key-0001
